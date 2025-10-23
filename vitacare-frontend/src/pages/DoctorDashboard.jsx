@@ -36,6 +36,7 @@ const DoctorDashboard = () => {
   const navigate = useNavigate();
   const [doctorProfile, setDoctorProfile] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchBy, setSearchBy] = useState('healthId');
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { bookAppointment, getAppointments } from '../redux/slices/appointmentsSlice';
 import {
   Container,
   Box,
@@ -40,15 +42,20 @@ import {
 
 const BookAppointment = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.appointments);
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState({
     type: 'video',
     specialization: '',
+    doctorId: '',
+    hospitalId: '',
     date: '',
     timeSlot: '',
     reason: '',
     symptoms: '',
     preferredLanguage: '',
+    consultationFee: 500,
   });
 
   const steps = ['Select Type', 'Choose Date & Time', 'Add Details', 'Confirm'];
@@ -90,10 +97,58 @@ const BookAppointment = () => {
     });
   };
 
-  const handleSubmit = () => {
-    // TODO: Implement appointment booking API call
-    console.log('Booking appointment:', formData);
-    navigate('/appointments');
+  const handleSubmit = async () => {
+    try {
+      // Convert 12-hour format to 24-hour format (e.g., "09:00 AM" to "09:00")
+      const convertTo24Hour = (time12h) => {
+        const [time, period] = time12h.split(' ');
+        let [hours, minutes] = time.split(':');
+        hours = parseInt(hours);
+        
+        if (period === 'PM' && hours !== 12) {
+          hours += 12;
+        } else if (period === 'AM' && hours === 12) {
+          hours = 0;
+        }
+        
+        return `${hours.toString().padStart(2, '0')}:${minutes}`;
+      };
+
+      const startTime = convertTo24Hour(formData.timeSlot);
+      
+      // Create end time (1 hour after start)
+      const [startHour, startMin] = startTime.split(':').map(Number);
+      const endHour = (startHour + 1) % 24;
+      const endTime = `${endHour.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`;
+
+      const appointmentData = {
+        appointmentDate: formData.date,
+        timeSlot: {
+          start: startTime,
+          end: endTime
+        },
+        type: formData.type === 'video' ? 'telemedicine' : 'in-person',
+        reason: formData.reason || `${formData.specialization} consultation`,
+        symptoms: formData.symptoms ? formData.symptoms.split(',').map(s => s.trim()) : [],
+        consultationFee: formData.consultationFee
+      };
+
+      // Add doctor and hospital IDs only if they exist
+      if (formData.doctorId) appointmentData.doctorId = formData.doctorId;
+      if (formData.hospitalId) appointmentData.hospitalId = formData.hospitalId;
+
+      console.log('Booking appointment with data:', appointmentData);
+      
+      const result = await dispatch(bookAppointment(appointmentData));
+      
+      if (bookAppointment.fulfilled.match(result)) {
+        // Refresh appointments list after booking
+        await dispatch(getAppointments());
+        navigate('/appointments');
+      }
+    } catch (error) {
+      console.error('Error booking appointment:', error);
+    }
   };
 
   const getStepContent = (step) => {
@@ -715,6 +770,7 @@ const BookAppointment = () => {
               endIcon={<CheckCircle />}
               variant="contained"
               size="large"
+              disabled={loading}
               sx={{
                 px: 4,
                 borderRadius: 2,
@@ -727,7 +783,7 @@ const BookAppointment = () => {
                 transition: 'all 0.3s ease',
               }}
             >
-              Book Appointment
+              {loading ? 'Booking...' : 'Book Appointment'}
             </Button>
           ) : (
             <Button

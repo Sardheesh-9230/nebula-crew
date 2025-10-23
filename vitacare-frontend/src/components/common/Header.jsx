@@ -18,6 +18,7 @@ import {
   MedicalServices,
   Event,
   Language,
+  LocalHospital,
 } from '@mui/icons-material';
 import { logout } from '../../redux/slices/authSlice';
 import NotificationBell from './NotificationBell';
@@ -59,17 +60,40 @@ const Header = () => {
   };
 
   return (
-    <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => navigate('/dashboard')}>
-          🏥 VitaCare
-        </Typography>
+    <>
+      <AppBar position="static">
+        <Toolbar sx={{ py: 1 }}>
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 1.5, 
+              flexGrow: 1, 
+              cursor: 'pointer' 
+            }} 
+            onClick={() => navigate('/dashboard')}
+          >
+            <LocalHospital sx={{ fontSize: 32 }} />
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                VitaCare
+              </Typography>
+              <Typography variant="caption" sx={{ fontSize: '0.65rem', opacity: 0.9 }}>
+                Ministry of Health & Family Welfare
+              </Typography>
+            </Box>
+          </Box>
 
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <Button
             color="inherit"
             startIcon={<DashboardIcon />}
             onClick={() => navigate('/dashboard')}
+            sx={{ 
+              fontWeight: 600, 
+              textTransform: 'none',
+              '&:hover': { background: 'rgba(255,255,255,0.15)' }
+            }}
           >
             {t('dashboard')}
           </Button>
@@ -78,6 +102,11 @@ const Header = () => {
             color="inherit"
             startIcon={<MedicalServices />}
             onClick={() => navigate('/records')}
+            sx={{ 
+              fontWeight: 600, 
+              textTransform: 'none',
+              '&:hover': { background: 'rgba(255,255,255,0.15)' }
+            }}
           >
             {t('medicalRecords')}
           </Button>
@@ -86,6 +115,11 @@ const Header = () => {
             color="inherit"
             startIcon={<Event />}
             onClick={() => navigate('/appointments')}
+            sx={{ 
+              fontWeight: 600, 
+              textTransform: 'none',
+              '&:hover': { background: 'rgba(255,255,255,0.15)' }
+            }}
           >
             {t('appointments')}
           </Button>
@@ -93,6 +127,7 @@ const Header = () => {
           <IconButton
             color="inherit"
             onClick={handleLangMenu}
+            sx={{ '&:hover': { background: 'rgba(255,255,255,0.15)' } }}
           >
             <Language />
           </IconButton>
@@ -111,6 +146,7 @@ const Header = () => {
             size="large"
             onClick={handleMenu}
             color="inherit"
+            sx={{ '&:hover': { background: 'rgba(255,255,255,0.15)' } }}
           >
             <AccountCircle />
           </IconButton>
@@ -127,6 +163,14 @@ const Header = () => {
         </Box>
       </Toolbar>
     </AppBar>
+    {/* Government Tricolor Stripe */}
+    <Box
+      sx={{
+        background: 'linear-gradient(90deg, #FF9933 0%, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%, #138808 100%)',
+        height: '4px',
+      }}
+    />
+    </>
   );
 };
 

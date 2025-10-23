@@ -7,9 +7,13 @@ export const getAppointments = createAsyncThunk(
   'appointments/getAll',
   async (filters, { rejectWithValue }) => {
     try {
+      console.log('Redux: Fetching appointments with filters:', filters);
       const response = await api.get('/appointments', { params: filters });
+      console.log('Redux: Appointments fetched successfully:', response.data);
+      console.log('Redux: Total appointments:', response.data.data?.length);
       return response.data.data;
     } catch (error) {
+      console.error('Redux: Failed to fetch appointments:', error.response?.data);
       return rejectWithValue(error.response?.data?.message);
     }
   }
@@ -20,10 +24,13 @@ export const bookAppointment = createAsyncThunk(
   'appointments/book',
   async (appointmentData, { rejectWithValue }) => {
     try {
+      console.log('Redux: Booking appointment with data:', appointmentData);
       const response = await api.post('/appointments', appointmentData);
+      console.log('Redux: Appointment booked successfully:', response.data);
       toast.success('Appointment booked successfully!');
       return response.data.data;
     } catch (error) {
+      console.error('Redux: Booking failed:', error.response?.data);
       const message = error.response?.data?.message || 'Booking failed';
       toast.error(message);
       return rejectWithValue(message);
@@ -59,17 +66,29 @@ const appointmentsSlice = createSlice({
     builder
       .addCase(getAppointments.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(getAppointments.fulfilled, (state, action) => {
         state.loading = false;
         state.appointments = action.payload;
+        state.error = null;
       })
       .addCase(getAppointments.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(bookAppointment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(bookAppointment.fulfilled, (state, action) => {
+        state.loading = false;
         state.appointments.unshift(action.payload);
+        state.error = null;
+      })
+      .addCase(bookAppointment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
       .addCase(cancelAppointment.fulfilled, (state, action) => {
         state.appointments = state.appointments.filter(

@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Box } from '@mui/material';
+import { Box, ThemeProvider } from '@mui/material';
 import { loadUser } from './redux/slices/authSlice';
+import governmentTheme from './theme/governmentTheme';
 
 // Pages
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import RegistrationSuccess from './pages/RegistrationSuccess';
@@ -17,6 +19,13 @@ import NotificationInbox from './pages/NotificationInbox';
 import Gamification from './pages/Gamification';
 import DoctorDashboard from './pages/DoctorDashboard';
 import Telemedicine from './pages/Telemedicine';
+
+// SHO Dashboard Pages
+import SHODashboard from './pages/sho/SHODashboard';
+import RHODashboard from './pages/sho/RHODashboard';
+
+// Patient Pages
+import PatientDiscovery from './pages/patient/PatientDiscovery';
 
 // Components
 import Header from './components/common/Header';
@@ -32,6 +41,25 @@ const PrivateRoute = ({ children }) => {
   }
   
   return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+// Role-based Route Component
+const RoleBasedRoute = ({ children, allowedRoles }) => {
+  const { isAuthenticated, loading, user } = useSelector((state) => state.auth);
+  
+  if (loading) {
+    return <Loader />;
+  }
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (allowedRoles && !allowedRoles.includes(user?.role)) {
+    return <Navigate to="/dashboard" />;
+  }
+  
+  return children;
 };
 
 function App() {
@@ -54,12 +82,19 @@ function App() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {isAuthenticated && <Header />}
-      {isAuthenticated && <SOSButton />}
-      
-      <Box component="main" sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}>
+    <ThemeProvider theme={governmentTheme}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        {isAuthenticated && <Header />}
+        {isAuthenticated && <SOSButton />}
+        
+        <Box component="main" sx={{ flexGrow: 1, bgcolor: 'background.default', p: isAuthenticated ? 3 : 0 }}>
         <Routes>
+          {/* Landing Page - Public Route */}
+          <Route 
+            path="/" 
+            element={isAuthenticated ? <Navigate to="/dashboard" /> : <LandingPage />} 
+          />
+
           {/* Public Routes */}
           <Route 
             path="/login" 
@@ -147,13 +182,33 @@ function App() {
               </PrivateRoute>
             } 
           />
-
-          {/* Default Route */}
+          
+          {/* SHO Dashboard Route */}
           <Route 
-            path="/" 
-            element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} 
+            path="/sho/dashboard" 
+            element={
+              <RoleBasedRoute allowedRoles={['sho']}>
+                <SHODashboard />
+              </RoleBasedRoute>
+            } 
           />
           
+          {/* RHO Dashboard Route */}
+          <Route 
+            path="/rho/dashboard" 
+            element={
+              <RoleBasedRoute allowedRoles={['rho']}>
+                <RHODashboard />
+              </RoleBasedRoute>
+            } 
+          />
+          
+          {/* Patient Discovery Route - Public Access */}
+          <Route 
+            path="/patient/discover" 
+            element={<PatientDiscovery />} 
+          />
+
           {/* 404 Route */}
           <Route 
             path="*" 
@@ -162,6 +217,7 @@ function App() {
         </Routes>
       </Box>
     </Box>
+    </ThemeProvider>
   );
 }
 

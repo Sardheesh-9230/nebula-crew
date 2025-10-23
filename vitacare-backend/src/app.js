@@ -16,6 +16,12 @@ const emergencyRoutes = require('./routes/emergencyRoutes');
 const gamificationRoutes = require('./routes/gamificationRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
 
+// SHO Dashboard Routes
+const shoRoutes = require('./routes/shoRoutes');
+const rhoRoutes = require('./routes/rhoRoutes');
+const patientRoutes = require('./routes/patientRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
+
 const app = express();
 
 // Body parser
@@ -26,8 +32,25 @@ app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 
 // CORS
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      console.log('CORS: Blocked origin:', origin);
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    console.log('CORS: Allowed origin:', origin);
+    return callback(null, true);
+  },
   credentials: true
 }));
 
@@ -64,6 +87,12 @@ app.use('/api/v1/emergency', emergencyRoutes);
 app.use('/api/v1/gamification', gamificationRoutes);
 app.use('/api/v1/doctors', doctorRoutes);
 
+// SHO Dashboard Routes
+app.use('/api/v1/sho', shoRoutes);
+app.use('/api/v1/rho', rhoRoutes);
+app.use('/api/v1/patient', patientRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
+
 // Welcome route
 app.get('/', (req, res) => {
   res.json({
@@ -79,6 +108,10 @@ app.get('/', (req, res) => {
       emergency: '/api/v1/emergency',
       gamification: '/api/v1/gamification',
       doctors: '/api/v1/doctors',
+      sho: '/api/v1/sho',
+      rho: '/api/v1/rho',
+      patient: '/api/v1/patient',
+      analytics: '/api/v1/analytics',
       health: '/health'
     }
   });

@@ -6,6 +6,10 @@ const Doctor = require('../models/Doctor');
 // @access  Private
 exports.getAppointments = async (req, res, next) => {
   try {
+    console.log('=== GET APPOINTMENTS ===');
+    console.log('User:', req.user._id, 'Role:', req.user.role);
+    console.log('Query params:', req.query);
+    
     const { status, startDate, endDate } = req.query;
     
     let query = {};
@@ -32,11 +36,16 @@ exports.getAppointments = async (req, res, next) => {
       if (endDate) query.appointmentDate.$lte = new Date(endDate);
     }
 
+    console.log('MongoDB query:', JSON.stringify(query, null, 2));
+
     const appointments = await Appointment.find(query)
       .populate('patientId', 'healthId profile.firstName profile.lastName mobileNumber')
       .populate('doctorId', 'userId registrationNumber specialization consultationFee')
       .populate('hospitalId', 'name address contactInfo')
       .sort({ appointmentDate: -1 });
+
+    console.log('Found appointments:', appointments.length);
+    console.log('Appointments:', JSON.stringify(appointments, null, 2));
 
     res.status(200).json({
       success: true,
@@ -44,6 +53,7 @@ exports.getAppointments = async (req, res, next) => {
       data: appointments
     });
   } catch (error) {
+    console.error('Error fetching appointments:', error);
     next(error);
   }
 };
@@ -79,34 +89,69 @@ exports.getAppointment = async (req, res, next) => {
 // @access  Private
 exports.bookAppointment = async (req, res, next) => {
   try {
-    const appointmentData = {
-      patientId: req.user._id,
-      doctorId: req.body.doctorId,
-      hospitalId: req.body.hospitalId,
-      appointmentDate: req.body.appointmentDate,
-      timeSlot: req.body.timeSlot,
-      type: req.body.type || 'in-person',
-      reason: req.body.reason,
-      symptoms: req.body.symptoms,
-      consultationFee: req.body.consultationFee
-    };
-
-    // Check if slot is available (simplified check)
-    const existingAppointment = await Appointment.findOne({
-      doctorId: appointmentData.doctorId,
-      appointmentDate: appointmentData.appointmentDate,
-      'timeSlot.start': appointmentData.timeSlot.start,
-      status: { $in: ['scheduled', 'confirmed'] }
-    });
-
-    if (existingAppointment) {
+    console.log('=== BOOKING APPOINTMENT ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('User ID:', req.user._id);
+    
+    // Validate required fields
+    if (!req.body.appointmentDate || !req.body.timeSlot) {
+      console.log('Missing required fields');
       return res.status(400).json({
         success: false,
-        message: 'This time slot is not available'
+        message: 'Appointment date and time slot are required'
       });
     }
 
+    // Validate timeSlot structure
+    if (!req.body.timeSlot.start || !req.body.timeSlot.end) {
+      console.log('Invalid timeSlot structure:', req.body.timeSlot);
+      return res.status(400).json({
+        success: false,
+        message: 'Time slot must have start and end times'
+      });
+    }
+
+    const appointmentData = {
+      patientId: req.user._id,
+      appointmentDate: req.body.appointmentDate,
+      timeSlot: req.body.timeSlot,
+      type: req.body.type || 'in-person',
+      reason: req.body.reason || 'General consultation',
+      symptoms: req.body.symptoms || [],
+      consultationFee: req.body.consultationFee || 500
+    };
+
+    // Add doctorId and hospitalId only if they are valid MongoDB ObjectIds
+    const mongoose = require('mongoose');
+    if (req.body.doctorId && mongoose.Types.ObjectId.isValid(req.body.doctorId)) {
+      appointmentData.doctorId = req.body.doctorId;
+    }
+    if (req.body.hospitalId && mongoose.Types.ObjectId.isValid(req.body.hospitalId)) {
+      appointmentData.hospitalId = req.body.hospitalId;
+    }
+
+    console.log('Processed appointment data:', JSON.stringify(appointmentData, null, 2));
+
+    // Check if slot is available only if doctorId is provided
+    if (appointmentData.doctorId) {
+      const existingAppointment = await Appointment.findOne({
+        doctorId: appointmentData.doctorId,
+        appointmentDate: appointmentData.appointmentDate,
+        'timeSlot.start': appointmentData.timeSlot.start,
+        status: { $in: ['scheduled', 'confirmed'] }
+      });
+
+      if (existingAppointment) {
+        console.log('Time slot already booked');
+        return res.status(400).json({
+          success: false,
+          message: 'This time slot is not available'
+        });
+      }
+    }
+
     const appointment = await Appointment.create(appointmentData);
+    console.log('Appointment created successfully:', appointment);
 
     res.status(201).json({
       success: true,
@@ -114,6 +159,8 @@ exports.bookAppointment = async (req, res, next) => {
       data: appointment
     });
   } catch (error) {
+    console.error('Error booking appointment:', error);
+    console.error('Error stack:', error.stack);
     next(error);
   }
 };
