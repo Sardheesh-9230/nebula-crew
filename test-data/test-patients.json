@@ -1,0 +1,159 @@
+{
+  "testPatients": [
+    {
+      "description": "Valid patient - Male",
+      "aadhaarNumber": "111222333444",
+      "firstName": "Amit",
+      "lastName": "Sharma",
+      "mobileNumber": "9123456789",
+      "email": "amit.sharma@example.com",
+      "password": "AmitPass@123",
+      "bloodGroup": "A+",
+      "address": {
+        "line1": "House No 123, Green Park",
+        "line2": "Opposite Park",
+        "city": "Delhi",
+        "state": "Delhi",
+        "pincode": "110016"
+      },
+      "emergencyContact": {
+        "name": "Neha Sharma",
+        "relationship": "Sister",
+        "mobile": "9123456790"
+      }
+    },
+    {
+      "description": "Valid patient - Female",
+      "aadhaarNumber": "555666777888",
+      "firstName": "Priya",
+      "lastName": "Verma",
+      "mobileNumber": "9988776655",
+      "email": "priya.verma@example.com",
+      "password": "PriyaPass@2024",
+      "bloodGroup": "O-",
+      "address": {
+        "line1": "Flat 456, Lake View Apartments",
+        "line2": "Sector 18, Koramangala",
+        "city": "Bangalore",
+        "state": "Karnataka",
+        "pincode": "560034"
+      },
+      "emergencyContact": {
+        "name": "Rajesh Verma",
+        "relationship": "Father",
+        "mobile": "9988776656"
+      }
+    },
+    {
+      "description": "Valid patient - Without email",
+      "aadhaarNumber": "999888777666",
+      "firstName": "Suresh",
+      "lastName": "Patel",
+      "mobileNumber": "8765432109",
+      "password": "SureshPass@999",
+      "bloodGroup": "AB+",
+      "address": {
+        "line1": "Block C, 789 Residency",
+        "city": "Ahmedabad",
+        "state": "Gujarat",
+        "pincode": "380001"
+      },
+      "emergencyContact": {
+        "name": "Ramesh Patel",
+        "relationship": "Brother",
+        "mobile": "8765432100"
+      }
+    },
+    {
+      "description": "Valid patient - With all optional fields",
+      "aadhaarNumber": "444555666777",
+      "firstName": "Kavita",
+      "lastName": "Singh",
+      "mobileNumber": "7654321098",
+      "email": "kavita.singh@example.com",
+      "password": "KavitaPass@456",
+      "bloodGroup": "B-",
+      "address": {
+        "line1": "Plot 234, Jubilee Hills",
+        "line2": "Behind Shopping Mall",
+        "city": "Hyderabad",
+        "state": "Telangana",
+        "pincode": "500033"
+      },
+      "emergencyContact": {
+        "name": "Anil Singh",
+        "relationship": "Husband",
+        "mobile": "7654321099"
+      }
+    },
+    {
+      "description": "Valid patient - From rural area",
+      "aadhaarNumber": "222333444555",
+      "firstName": "Ramesh",
+      "lastName": "Yadav",
+      "mobileNumber": "6543210987",
+      "password": "RameshPass@789",
+      "bloodGroup": "O+",
+      "address": {
+        "line1": "Village Rampur, Post Office Road",
+        "city": "Lucknow",
+        "state": "Uttar Pradesh",
+        "pincode": "226001"
+      },
+      "emergencyContact": {
+        "name": "Sunita Yadav",
+        "relationship": "Mother",
+        "mobile": "6543210988"
+      }
+    }
+  ],
+  "invalidTestCases": [
+    {
+      "description": "Invalid - Short Aadhaar",
+      "aadhaarNumber": "12345",
+      "firstName": "Test",
+      "lastName": "User",
+      "mobileNumber": "9876543210",
+      "password": "TestPass@123",
+      "bloodGroup": "A+",
+      "expectedError": "Aadhaar number must be exactly 12 digits"
+    },
+    {
+      "description": "Invalid - Short mobile number",
+      "aadhaarNumber": "123456789012",
+      "firstName": "Test",
+      "lastName": "User",
+      "mobileNumber": "987654321",
+      "password": "TestPass@123",
+      "bloodGroup": "A+",
+      "expectedError": "Mobile number must be exactly 10 digits"
+    },
+    {
+      "description": "Invalid - Weak password",
+      "aadhaarNumber": "123456789012",
+      "firstName": "Test",
+      "lastName": "User",
+      "mobileNumber": "9876543210",
+      "password": "weak",
+      "bloodGroup": "A+",
+      "expectedError": "Password must be at least 8 characters"
+    },
+    {
+      "description": "Invalid - Invalid blood group",
+      "aadhaarNumber": "123456789012",
+      "firstName": "Test",
+      "lastName": "User",
+      "mobileNumber": "9876543210",
+      "password": "TestPass@123",
+      "bloodGroup": "XYZ",
+      "expectedError": "Invalid blood group"
+    },
+    {
+      "description": "Invalid - Missing required fields",
+      "aadhaarNumber": "123456789012",
+      "firstName": "Test",
+      "mobileNumber": "9876543210",
+      "expectedError": "Validation failed"
+    }
+  ]
+}

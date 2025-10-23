@@ -20,7 +20,42 @@ const generateRefreshToken = (id) => {
 // @access  Public
 exports.register = async (req, res, next) => {
   try {
-    const { mobileNumber, email, password, aadhaarNumber, firstName, lastName } = req.body;
+    const { 
+      mobileNumber, 
+      email, 
+      password, 
+      aadhaarNumber, 
+      firstName, 
+      lastName,
+      bloodGroup,
+      address,
+      emergencyContact
+    } = req.body;
+
+    // Check registration time window (5:30 PM - 7:30 PM IST)
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const currentTime = hours * 60 + minutes;
+    
+    const startTime = 17 * 60 + 30; // 5:30 PM
+    const endTime = 19 * 60 + 30;   // 7:30 PM
+    
+    if (currentTime < startTime || currentTime > endTime) {
+      return res.status(403).json({
+        success: false,
+        message: 'Patient registration is only allowed between 5:30 PM and 7:30 PM',
+        registrationHours: '5:30 PM - 7:30 PM'
+      });
+    }
+
+    // Validate required fields
+    if (!aadhaarNumber || !firstName || !lastName || !mobileNumber || !bloodGroup || !emergencyContact) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide all required fields: Aadhaar number, name, phone number, blood group, address, and emergency contact'
+      });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ 
@@ -37,7 +72,7 @@ exports.register = async (req, res, next) => {
     // Generate unique health ID
     const healthId = User.generateHealthId();
 
-    // Create user
+    // Create user with all patient registration fields
     const user = await User.create({
       healthId,
       mobileNumber,
@@ -46,8 +81,15 @@ exports.register = async (req, res, next) => {
       aadhaarNumber,
       profile: {
         firstName,
-        lastName
-      }
+        lastName,
+        bloodGroup,
+        address: address || {}
+      },
+      emergencyContacts: emergencyContact ? [{
+        name: emergencyContact.name,
+        relationship: emergencyContact.relationship,
+        mobile: emergencyContact.mobile
+      }] : []
     });
 
     // Generate tokens
@@ -60,7 +102,7 @@ exports.register = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'Patient registered successfully',
       data: {
         user: {
           id: user._id,
@@ -68,7 +110,8 @@ exports.register = async (req, res, next) => {
           mobileNumber: user.mobileNumber,
           email: user.email,
           role: user.role,
-          profile: user.profile
+          profile: user.profile,
+          emergencyContacts: user.emergencyContacts
         },
         token,
         refreshToken
