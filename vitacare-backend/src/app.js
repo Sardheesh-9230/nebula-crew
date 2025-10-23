@@ -12,6 +12,9 @@ const userRoutes = require('./routes/userRoutes');
 const medicalRecordRoutes = require('./routes/medicalRecordRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const emergencyRoutes = require('./routes/emergencyRoutes');
+const gamificationRoutes = require('./routes/gamificationRoutes');
+const doctorRoutes = require('./routes/doctorRoutes');
 
 const app = express();
 
@@ -57,6 +60,9 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/records', medicalRecordRoutes);
 app.use('/api/v1/appointments', appointmentRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/emergency', emergencyRoutes);
+app.use('/api/v1/gamification', gamificationRoutes);
+app.use('/api/v1/doctors', doctorRoutes);
 
 // Welcome route
 app.get('/', (req, res) => {
@@ -70,6 +76,9 @@ app.get('/', (req, res) => {
       records: '/api/v1/records',
       appointments: '/api/v1/appointments',
       notifications: '/api/v1/notifications',
+      emergency: '/api/v1/emergency',
+      gamification: '/api/v1/gamification',
+      doctors: '/api/v1/doctors',
       health: '/health'
     }
   });

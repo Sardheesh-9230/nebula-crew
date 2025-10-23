@@ -16,7 +16,7 @@ import {
   Divider,
 } from '@mui/material';
 import {
-  Emergency,
+  ReportProblem,
   LocationOn,
   Phone,
   LocalHospital,
@@ -24,12 +24,15 @@ import {
   Warning,
   Check,
 } from '@mui/icons-material';
+import { toast } from 'react-toastify';
+import api from '../../services/api';
 
 const EmergencySOS = ({ open, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [sosActivated, setSosActivated] = useState(false);
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
+  const [sosResponse, setSosResponse] = useState(null);
 
   const activateSOS = async () => {
     setLoading(true);
@@ -47,20 +50,22 @@ const EmergencySOS = ({ open, onClose }) => {
             };
             setLocation(userLocation);
 
-            // TODO: Send SOS to backend
-            // await axios.post('/api/v1/emergency/sos', {
-            //   location: userLocation,
-            //   timestamp: new Date().toISOString()
-            // });
+            try {
+              // Send SOS to backend
+              const response = await api.post('/emergency/sos', {
+                location: userLocation,
+                emergency_type: 'general'
+              });
 
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-
-            setSosActivated(true);
-            setLoading(false);
-
-            // Auto-dial emergency number (simulation)
-            console.log('SOS Activated!', userLocation);
+              setSosResponse(response.data.data);
+              setSosActivated(true);
+              toast.success('Emergency SOS activated! Help is on the way.');
+              setLoading(false);
+            } catch (apiError) {
+              setError('Failed to send emergency alert. Please call 108 directly.');
+              toast.error('Failed to activate SOS');
+              setLoading(false);
+            }
           },
           (error) => {
             setError('Unable to get your location. Please enable location services.');
@@ -87,6 +92,7 @@ const EmergencySOS = ({ open, onClose }) => {
       setSosActivated(false);
       setLocation(null);
       setError(null);
+      setSosResponse(null);
       onClose();
     }
   };
@@ -108,7 +114,7 @@ const EmergencySOS = ({ open, onClose }) => {
     >
       <DialogTitle>
         <Box display="flex" alignItems="center" gap={1}>
-          <Emergency sx={{ fontSize: 32 }} />
+          <ReportProblem sx={{ fontSize: 32 }} />
           <Typography variant="h5" fontWeight="bold">
             {sosActivated ? 'SOS Activated!' : 'Emergency SOS'}
           </Typography>
@@ -295,7 +301,7 @@ const EmergencySOS = ({ open, onClose }) => {
                   backgroundColor: 'rgba(255,255,255,0.9)',
                 },
               }}
-              startIcon={<Emergency />}
+              startIcon={<ReportProblem />}
             >
               Activate SOS
             </Button>

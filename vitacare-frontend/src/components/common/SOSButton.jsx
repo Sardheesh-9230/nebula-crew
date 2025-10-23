@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Fab, Tooltip } from '@mui/material';
-import { Emergency } from '@mui/icons-material';
+import { LocalHospital } from '@mui/icons-material';
 import EmergencySOS from './EmergencySOS';
 
 const SOSButton = () => {
@@ -42,7 +42,7 @@ const SOSButton = () => {
             },
           }}
         >
-          <Emergency sx={{ fontSize: 32 }} />
+          <LocalHospital sx={{ fontSize: 32 }} />
         </Fab>
       </Tooltip>
 

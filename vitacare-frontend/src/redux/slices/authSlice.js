@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
+import socketService from '../../services/socketService';
 
 // Register user
 export const register = createAsyncThunk(
@@ -37,6 +38,10 @@ export const login = createAsyncThunk(
       const response = await api.post('/auth/login', credentials);
       localStorage.setItem('token', response.data.data.token);
       localStorage.setItem('refreshToken', response.data.data.refreshToken);
+      
+      // Connect socket with user ID and token
+      socketService.connect(response.data.data.user._id, response.data.data.token);
+      
       toast.success('Login successful!');
       return response.data.data;
     } catch (error) {
@@ -70,10 +75,18 @@ export const logout = createAsyncThunk(
       await api.post('/auth/logout');
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
+      
+      // Disconnect socket on logout
+      socketService.disconnect();
+      
       toast.success('Logged out successfully');
     } catch (error) {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
+      
+      // Disconnect socket even if logout API fails
+      socketService.disconnect();
+      
       return rejectWithValue(error.response?.data?.message);
     }
   }

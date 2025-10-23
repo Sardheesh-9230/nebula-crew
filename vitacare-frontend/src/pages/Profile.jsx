@@ -146,7 +146,22 @@ const Profile = () => {
                   <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 2 }}>
                     <Chip 
                       icon={<Shield sx={{ color: '#fff !important' }} />}
-                      label={`Health ID: ${user?.healthId}`}
+                      label={`UHI: ${user?.healthId || 'Not Available'}`}
+                      sx={{ 
+                        background: 'linear-gradient(135deg, rgba(255,215,0,0.3) 0%, rgba(255,165,0,0.3) 100%)',
+                        color: '#fff',
+                        fontWeight: 700,
+                        fontSize: '1.1rem',
+                        px: 2,
+                        py: 3,
+                        backdropFilter: 'blur(10px)',
+                        border: '2px solid rgba(255,215,0,0.5)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                      }}
+                    />
+                    <Chip 
+                      icon={<VerifiedUser sx={{ color: '#fff !important' }} />}
+                      label="Universal Health Identity"
                       sx={{ 
                         background: 'rgba(255, 255, 255, 0.2)',
                         color: '#fff',

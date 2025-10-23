@@ -20,6 +20,7 @@ import {
   Language,
 } from '@mui/icons-material';
 import { logout } from '../../redux/slices/authSlice';
+import NotificationBell from './NotificationBell';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -104,6 +105,8 @@ const Header = () => {
             <MenuItem onClick={() => changeLanguage('en')}>English</MenuItem>
             <MenuItem onClick={() => changeLanguage('hi')}>हिन्दी</MenuItem>
           </Menu>
+
+          <NotificationBell />
 
           <IconButton
             size="large"

@@ -11,7 +11,10 @@ import {
   Typography,
   CircularProgress,
   Grid,
+  Alert,
+  AlertTitle,
 } from '@mui/material';
+import { Info } from '@mui/icons-material';
 import { register } from '../redux/slices/authSlice';
 
 const Register = () => {
@@ -62,6 +65,17 @@ const Register = () => {
           <Typography component="h2" variant="h6" align="center" gutterBottom>
             {t('register')}
           </Typography>
+
+          <Alert severity="info" icon={<Info />} sx={{ mt: 2, mb: 2 }}>
+            <AlertTitle>Universal Health Identity (UHI)</AlertTitle>
+            Your UHI will be automatically generated in format: <strong>FIRSTNAME1234</strong>
+            <br />
+            (Your first name + last 4 digits of Aadhaar)
+            <br />
+            <Typography variant="caption">
+              Example: If your name is "Rahul" and Aadhaar ends in 5678, your UHI will be <strong>RAHUL5678</strong>
+            </Typography>
+          </Alert>
           
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>

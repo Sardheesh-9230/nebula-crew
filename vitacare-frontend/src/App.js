@@ -12,6 +12,10 @@ import Profile from './pages/Profile';
 import MedicalRecords from './pages/MedicalRecords';
 import Appointments from './pages/Appointments';
 import BookAppointment from './pages/BookAppointment';
+import NotificationInbox from './pages/NotificationInbox';
+import Gamification from './pages/Gamification';
+import DoctorDashboard from './pages/DoctorDashboard';
+import Telemedicine from './pages/Telemedicine';
 
 // Components
 import Header from './components/common/Header';
@@ -103,6 +107,38 @@ function App() {
             element={
               <PrivateRoute>
                 <BookAppointment />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/notifications" 
+            element={
+              <PrivateRoute>
+                <NotificationInbox />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/gamification" 
+            element={
+              <PrivateRoute>
+                <Gamification />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/doctor/dashboard" 
+            element={
+              <PrivateRoute>
+                <DoctorDashboard />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/telemedicine" 
+            element={
+              <PrivateRoute>
+                <Telemedicine />
               </PrivateRoute>
             } 
           />
