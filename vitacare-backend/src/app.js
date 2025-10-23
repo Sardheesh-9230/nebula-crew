@@ -8,6 +8,9 @@ const errorHandler = require('./middleware/errorHandler');
 
 // Route imports
 const authRoutes = require('./routes/authRoutes');
+const doctorAuthRoutes = require('./routes/doctorAuthRoutes');
+const stateOfficerAuthRoutes = require('./routes/stateOfficerAuthRoutes');
+const regionalOfficerAuthRoutes = require('./routes/regionalOfficerAuthRoutes');
 const userRoutes = require('./routes/userRoutes');
 const medicalRecordRoutes = require('./routes/medicalRecordRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
@@ -59,10 +62,10 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Rate limiting
+// Rate limiting (more lenient in development)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // 1000 requests in dev, 100 in production
   message: 'Too many requests from this IP, please try again later'
 });
 
@@ -79,6 +82,9 @@ app.get('/health', (req, res) => {
 
 // Mount routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/auth/doctor', doctorAuthRoutes);
+app.use('/api/v1/auth/state-officer', stateOfficerAuthRoutes);
+app.use('/api/v1/auth/regional-officer', regionalOfficerAuthRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/records', medicalRecordRoutes);
 app.use('/api/v1/appointments', appointmentRoutes);
@@ -101,6 +107,9 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     endpoints: {
       auth: '/api/v1/auth',
+      doctorAuth: '/api/v1/auth/doctor',
+      stateOfficerAuth: '/api/v1/auth/state-officer',
+      regionalOfficerAuth: '/api/v1/auth/regional-officer',
       users: '/api/v1/users',
       records: '/api/v1/records',
       appointments: '/api/v1/appointments',

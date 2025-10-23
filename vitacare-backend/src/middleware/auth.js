@@ -1,5 +1,8 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Doctor = require('../models/Doctor');
+const StateHealthOfficer = require('../models/StateHealthOfficer');
+const RegionalHealthOfficer = require('../models/RegionalHealthOfficer');
 
 // Protect routes - require authentication
 exports.protect = async (req, res, next) => {
@@ -22,28 +25,44 @@ exports.protect = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Get user from token
-    req.user = await User.findById(decoded.id).select('-password');
+    // Determine which model to use based on role in token
+    let user;
+    const role = decoded.role;
 
-    if (!req.user) {
+    if (role === 'doctor') {
+      user = await Doctor.findById(decoded.id).select('-password');
+    } else if (role === 'state-officer') {
+      user = await StateHealthOfficer.findById(decoded.id).select('-password');
+    } else if (role === 'regional-officer') {
+      user = await RegionalHealthOfficer.findById(decoded.id).select('-password');
+    } else {
+      // Default to User (patient) model
+      user = await User.findById(decoded.id).select('-password');
+    }
+
+    if (!user) {
       return res.status(401).json({
         success: false,
         message: 'User not found'
       });
     }
 
-    if (!req.user.isActive) {
+    if (!user.isActive) {
       return res.status(401).json({
         success: false,
         message: 'User account is deactivated'
       });
     }
 
+    req.user = user;
+    req.userRole = role || user.role;
+
     next();
   } catch (error) {
     return res.status(401).json({
       success: false,
-      message: 'Not authorized to access this route'
+      message: 'Not authorized to access this route',
+      error: error.message
     });
   }
 };

@@ -12,10 +12,14 @@ export const register = createAsyncThunk(
       const response = await api.post('/auth/register', userData);
       localStorage.setItem('token', response.data.data.token);
       localStorage.setItem('refreshToken', response.data.data.refreshToken);
+      
+      // Connect socket with user ID and token
+      socketService.connect(response.data.data.user._id, response.data.data.token);
+      
       toast.success('Registration successful!');
       return response.data.data;
     } catch (error) {
-      console.error('Registration error details:', error.response?.data);
+      console.error('Registration error:', error.response?.data);
       const message = error.response?.data?.message || 'Registration failed';
       
       // Display validation errors if present
@@ -23,10 +27,6 @@ export const register = createAsyncThunk(
         error.response.data.errors.forEach(err => {
           toast.error(`${err.field}: ${err.message}`);
         });
-        const validationErrors = error.response.data.errors
-          .map(err => `${err.field}: ${err.message}`)
-          .join('\n');
-        console.error('Validation errors:', validationErrors);
       } else {
         toast.error(message);
       }
@@ -41,12 +41,17 @@ export const login = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await api.post('/auth/login', credentials);
+      // Determine the endpoint based on role
+      const { endpoint, role, ...loginData } = credentials;
+      const apiEndpoint = endpoint || '/auth/login';
+      
+      const response = await api.post(apiEndpoint, loginData);
       localStorage.setItem('token', response.data.data.token);
       localStorage.setItem('refreshToken', response.data.data.refreshToken);
+      localStorage.setItem('userRole', response.data.data.user.role);
       
       // Connect socket with user ID and token
-      socketService.connect(response.data.data.user._id, response.data.data.token);
+      socketService.connect(response.data.data.user.id || response.data.data.user._id, response.data.data.token);
       
       toast.success('Login successful!');
       return response.data.data;
@@ -63,11 +68,31 @@ export const loadUser = createAsyncThunk(
   'auth/loadUser',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/auth/me');
+      // Determine the endpoint based on stored role
+      const userRole = localStorage.getItem('userRole');
+      let endpoint = '/auth/me';
+      
+      if (userRole === 'doctor') {
+        endpoint = '/auth/doctor/me';
+      } else if (userRole === 'state-officer') {
+        endpoint = '/auth/state-officer/me';
+      } else if (userRole === 'regional-officer') {
+        endpoint = '/auth/regional-officer/me';
+      }
+      
+      const response = await api.get(endpoint);
+      const token = localStorage.getItem('token');
+      
+      // Connect socket if user is loaded successfully
+      if (response.data.data && token) {
+        socketService.connect(response.data.data.id || response.data.data._id, token);
+      }
+      
       return response.data.data;
     } catch (error) {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userRole');
       return rejectWithValue(error.response?.data?.message);
     }
   }
@@ -78,9 +103,22 @@ export const logout = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      await api.post('/auth/logout');
+      // Determine the endpoint based on stored role
+      const userRole = localStorage.getItem('userRole');
+      let endpoint = '/auth/logout';
+      
+      if (userRole === 'doctor') {
+        endpoint = '/auth/doctor/logout';
+      } else if (userRole === 'state-officer') {
+        endpoint = '/auth/state-officer/logout';
+      } else if (userRole === 'regional-officer') {
+        endpoint = '/auth/regional-officer/logout';
+      }
+      
+      await api.post(endpoint);
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userRole');
       
       // Disconnect socket on logout
       socketService.disconnect();
@@ -89,6 +127,7 @@ export const logout = createAsyncThunk(
     } catch (error) {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userRole');
       
       // Disconnect socket even if logout API fails
       socketService.disconnect();

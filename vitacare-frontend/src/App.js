@@ -17,7 +17,9 @@ import Appointments from './pages/Appointments';
 import BookAppointment from './pages/BookAppointment';
 import NotificationInbox from './pages/NotificationInbox';
 import Gamification from './pages/Gamification';
-import DoctorDashboard from './pages/DoctorDashboard';
+import EnhancedDoctorDashboard from './pages/EnhancedDoctorDashboard';
+import StateOfficerDashboard from './pages/StateOfficerDashboard';
+import RegionalOfficerDashboard from './pages/RegionalOfficerDashboard';
 import Telemedicine from './pages/Telemedicine';
 
 // SHO Dashboard Pages
@@ -108,6 +110,15 @@ function App() {
             path="/registration-success" 
             element={<RegistrationSuccess />} 
           />
+          {/* Legacy routes for backward compatibility */}
+          <Route 
+            path="/role-selection" 
+            element={<Navigate to="/login" />} 
+          />
+          <Route 
+            path="/login/:role" 
+            element={<Navigate to="/login" />} 
+          />
 
           {/* Private Routes */}
           <Route 
@@ -170,7 +181,23 @@ function App() {
             path="/doctor/dashboard" 
             element={
               <PrivateRoute>
-                <DoctorDashboard />
+                <EnhancedDoctorDashboard />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/state-officer/dashboard" 
+            element={
+              <PrivateRoute>
+                <StateOfficerDashboard />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/regional-officer/dashboard" 
+            element={
+              <PrivateRoute>
+                <RegionalOfficerDashboard />
               </PrivateRoute>
             } 
           />

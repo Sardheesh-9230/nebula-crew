@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import {
   Container,
   Grid,
@@ -19,6 +20,17 @@ import {
   ListItemText,
   IconButton,
   CircularProgress,
+  Divider,
+  Fade,
+  Badge,
+  LinearProgress,
+  Tabs,
+  Tab,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Alert,
 } from '@mui/material';
 import {
   LocalHospital,
@@ -28,7 +40,34 @@ import {
   Search,
   Visibility,
   VideoCall,
+  Assignment,
+  Warning,
+  Schedule,
+  Add,
+  Healing,
+  Favorite,
+  Timeline,
+  HealthAndSafety,
+  Notifications,
+  Person,
+  Phone,
+  Email,
+  LocationOn,
+  Bloodtype,
+  MonitorHeart,
+  Assessment,
 } from '@mui/icons-material';
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+} from 'recharts';
 import api from '../services/api';
 import { toast } from 'react-toastify';
 

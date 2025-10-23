@@ -28,6 +28,13 @@ class SocketService {
       console.log('✅ Socket connected:', this.socket.id);
       // Join user's personal room
       this.socket.emit('join', userId);
+      
+      // Attach any queued listeners
+      this.listeners.forEach((callbacks, event) => {
+        callbacks.forEach(callback => {
+          this.socket.on(event, callback);
+        });
+      });
     });
 
     this.socket.on('disconnect', (reason) => {
@@ -56,8 +63,12 @@ class SocketService {
 
   // Subscribe to notification events
   on(event, callback) {
-    if (!this.socket) {
-      console.warn('Socket not connected. Call connect() first.');
+    if (!this.socket || !this.socket.connected) {
+      // Silently queue the listener for when socket connects
+      if (!this.listeners.has(event)) {
+        this.listeners.set(event, []);
+      }
+      this.listeners.get(event).push(callback);
       return;
     }
 

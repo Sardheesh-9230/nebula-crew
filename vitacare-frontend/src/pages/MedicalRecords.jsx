@@ -22,6 +22,10 @@ import {
   Slide,
   Avatar,
   Divider,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import {
   MedicalServices,
@@ -35,15 +39,25 @@ import {
   Medication,
   Vaccines,
   MonitorHeart,
+  CloudUpload,
+  Add,
 } from '@mui/icons-material';
-import { getMedicalRecords, getMedicalRecord } from '../redux/slices/recordsSlice';
+import { getMedicalRecords, getMedicalRecord, uploadMedicalRecord } from '../redux/slices/recordsSlice';
 
 const MedicalRecords = () => {
   const dispatch = useDispatch();
-  const { records, currentRecord, loading } = useSelector((state) => state.records);
+  const { records, currentRecord, loading, uploading } = useSelector((state) => state.records);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('all');
+  const [uploadData, setUploadData] = useState({
+    title: '',
+    description: '',
+    recordType: 'prescription',
+    date: new Date().toISOString().split('T')[0],
+    file: null,
+  });
 
   useEffect(() => {
     dispatch(getMedicalRecords());
@@ -56,6 +70,56 @@ const MedicalRecords = () => {
 
   const handleCloseDialog = () => {
     setViewDialogOpen(false);
+  };
+
+  const handleOpenUploadDialog = () => {
+    setUploadDialogOpen(true);
+  };
+
+  const handleCloseUploadDialog = () => {
+    setUploadDialogOpen(false);
+    setUploadData({
+      title: '',
+      description: '',
+      recordType: 'prescription',
+      date: new Date().toISOString().split('T')[0],
+      file: null,
+    });
+  };
+
+  const handleUploadChange = (field) => (event) => {
+    setUploadData({
+      ...uploadData,
+      [field]: event.target.value,
+    });
+  };
+
+  const handleFileChange = (event) => {
+    setUploadData({
+      ...uploadData,
+      file: event.target.files[0],
+    });
+  };
+
+  const handleUploadSubmit = async () => {
+    if (!uploadData.file) {
+      alert('Please select a file to upload');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', uploadData.file);
+    formData.append('title', uploadData.title);
+    formData.append('description', uploadData.description);
+    formData.append('recordType', uploadData.recordType);
+    formData.append('date', uploadData.date);
+
+    try {
+      await dispatch(uploadMedicalRecord(formData)).unwrap();
+      handleCloseUploadDialog();
+    } catch (error) {
+      console.error('Upload failed:', error);
+    }
   };
 
   const getRecordTypeColor = (type) => {
@@ -100,22 +164,46 @@ const MedicalRecords = () => {
       <Container maxWidth="lg">
         {/* Header Section */}
         <Fade in timeout={600}>
-          <Box sx={{ mb: 4 }}>
-            <Typography 
-              variant="h3" 
-              sx={{ 
-                fontWeight: 700,
-                mb: 2,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+          <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography 
+                variant="h3" 
+                sx={{ 
+                  fontWeight: 700,
+                  mb: 2,
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                📋 Medical Records
+              </Typography>
+              <Typography variant="h6" color="textSecondary">
+                View and manage your complete medical history
+              </Typography>
+            </Box>
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              onClick={handleOpenUploadDialog}
+              sx={{
+                background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                borderRadius: 2,
+                px: 3,
+                py: 1.5,
+                fontWeight: 600,
+                textTransform: 'none',
+                boxShadow: '0 4px 15px rgba(67, 233, 123, 0.4)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #38f9d7 0%, #43e97b 100%)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 20px rgba(67, 233, 123, 0.5)',
+                },
+                transition: 'all 0.3s ease',
               }}
             >
-              📋 Medical Records
-            </Typography>
-            <Typography variant="h6" color="textSecondary">
-              View and manage your complete medical history
-            </Typography>
+              Upload Record
+            </Button>
           </Box>
         </Fade>
 
@@ -374,6 +462,118 @@ const MedicalRecords = () => {
           ))}
         </Grid>
       </Container>
+
+      {/* Upload Record Dialog */}
+      <Dialog open={uploadDialogOpen} onClose={handleCloseUploadDialog} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: '#fff',
+          fontWeight: 700,
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CloudUpload />
+            Upload Medical Record
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Record Title"
+                value={uploadData.title}
+                onChange={handleUploadChange('title')}
+                required
+                sx={{ mb: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth required>
+                <InputLabel>Record Type</InputLabel>
+                <Select
+                  value={uploadData.recordType}
+                  onChange={handleUploadChange('recordType')}
+                  label="Record Type"
+                >
+                  <MenuItem value="prescription">Prescription</MenuItem>
+                  <MenuItem value="lab_report">Lab Report</MenuItem>
+                  <MenuItem value="imaging">Imaging</MenuItem>
+                  <MenuItem value="vaccination">Vaccination</MenuItem>
+                  <MenuItem value="surgery">Surgery</MenuItem>
+                  <MenuItem value="consultation">Consultation</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Date"
+                type="date"
+                value={uploadData.date}
+                onChange={handleUploadChange('date')}
+                InputLabelProps={{ shrink: true }}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Description"
+                value={uploadData.description}
+                onChange={handleUploadChange('description')}
+                multiline
+                rows={3}
+                sx={{ mb: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                variant="outlined"
+                component="label"
+                fullWidth
+                startIcon={<CloudUpload />}
+                sx={{
+                  borderRadius: 2,
+                  py: 1.5,
+                  borderColor: '#667eea',
+                  color: '#667eea',
+                  borderStyle: 'dashed',
+                  '&:hover': {
+                    borderColor: '#764ba2',
+                    background: 'rgba(102, 126, 234, 0.05)',
+                  },
+                }}
+              >
+                {uploadData.file ? uploadData.file.name : 'Select File (PDF, JPG, PNG)'}
+                <input
+                  type="file"
+                  hidden
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={handleFileChange}
+                />
+              </Button>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={handleCloseUploadDialog} disabled={uploading}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleUploadSubmit}
+            variant="contained"
+            disabled={uploading || !uploadData.title || !uploadData.file}
+            sx={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
+              },
+            }}
+          >
+            {uploading ? 'Uploading...' : 'Upload'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* View Record Dialog */}
       <Dialog open={viewDialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth>
