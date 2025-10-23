@@ -1,0 +1,21 @@
+{
+  "aadhaarNumber": "123456789012",
+  "firstName": "Rajesh",
+  "lastName": "Kumar",
+  "mobileNumber": "9876543210",
+  "email": "rajesh.kumar@example.com",
+  "password": "SecurePass@123",
+  "bloodGroup": "B+",
+  "address": {
+    "line1": "Plot No 456, Sector 12",
+    "line2": "Near Metro Station",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "pincode": "400012"
+  },
+  "emergencyContact": {
+    "name": "Priya Kumar",
+    "relationship": "Wife",
+    "mobile": "9876543211"
+  }
+}

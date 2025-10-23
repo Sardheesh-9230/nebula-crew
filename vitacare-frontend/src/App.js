@@ -7,6 +7,7 @@ import { loadUser } from './redux/slices/authSlice';
 // Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
+import RegistrationSuccess from './pages/RegistrationSuccess';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import MedicalRecords from './pages/MedicalRecords';
@@ -67,6 +68,10 @@ function App() {
           <Route 
             path="/register" 
             element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register />} 
+          />
+          <Route 
+            path="/registration-success" 
+            element={<RegistrationSuccess />} 
           />
 
           {/* Private Routes */}

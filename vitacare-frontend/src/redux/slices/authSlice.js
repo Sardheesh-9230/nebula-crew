@@ -8,24 +8,30 @@ export const register = createAsyncThunk(
   'auth/register',
   async (userData, { rejectWithValue }) => {
     try {
+      console.log('Sending registration data:', userData);
       const response = await api.post('/auth/register', userData);
       localStorage.setItem('token', response.data.data.token);
       localStorage.setItem('refreshToken', response.data.data.refreshToken);
       toast.success('Registration successful!');
       return response.data.data;
     } catch (error) {
+      console.error('Registration error details:', error.response?.data);
       const message = error.response?.data?.message || 'Registration failed';
       
-      // Show validation errors if available
+      // Display validation errors if present
       if (error.response?.data?.errors) {
         error.response.data.errors.forEach(err => {
           toast.error(`${err.field}: ${err.message}`);
         });
+        const validationErrors = error.response.data.errors
+          .map(err => `${err.field}: ${err.message}`)
+          .join('\n');
+        console.error('Validation errors:', validationErrors);
       } else {
         toast.error(message);
       }
       
-      return rejectWithValue(message);
+      return rejectWithValue(error.response?.data || message);
     }
   }
 );

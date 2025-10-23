@@ -18,6 +18,9 @@ import {
   Zoom,
   IconButton,
   InputAdornment,
+  Dialog,
+  DialogContent,
+  DialogTitle,
 } from '@mui/material';
 import {
   Person,
@@ -31,8 +34,11 @@ import {
   Cancel,
   Shield,
   VerifiedUser,
+  CreditCard,
+  Close,
 } from '@mui/icons-material';
 import { getProfile, updateProfile } from '../redux/slices/userSlice';
+import UHICard from '../components/common/UHICard';
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -40,6 +46,7 @@ const Profile = () => {
   const { user } = useSelector((state) => state.auth);
   const { profile, loading } = useSelector((state) => state.user);
   const [isEditing, setIsEditing] = useState(false);
+  const [showUHICard, setShowUHICard] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -480,6 +487,67 @@ const Profile = () => {
             </CardContent>
           </Card>
         </Zoom>
+
+        {/* View UHI Card Button */}
+        <Zoom in timeout={1200}>
+          <Box sx={{ mt: 3, textAlign: 'center' }}>
+            <Button
+              variant="contained"
+              size="large"
+              startIcon={<CreditCard />}
+              onClick={() => setShowUHICard(true)}
+              sx={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: '#fff',
+                px: 4,
+                py: 1.5,
+                borderRadius: 2,
+                fontSize: '1.1rem',
+                fontWeight: 600,
+                textTransform: 'none',
+                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 20px rgba(102, 126, 234, 0.6)',
+                },
+                transition: 'all 0.3s ease',
+              }}
+            >
+              View My UHI Card
+            </Button>
+          </Box>
+        </Zoom>
+
+        {/* UHI Card Dialog */}
+        <Dialog
+          open={showUHICard}
+          onClose={() => setShowUHICard(false)}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 3,
+            }
+          }}
+        >
+          <DialogTitle sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            pb: 1 
+          }}>
+            <Typography variant="h6" fontWeight="bold">
+              Your UHI Card
+            </Typography>
+            <IconButton onClick={() => setShowUHICard(false)}>
+              <Close />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <UHICard user={user} />
+          </DialogContent>
+        </Dialog>
       </Container>
     </Box>
   );

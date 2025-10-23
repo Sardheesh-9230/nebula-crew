@@ -117,3 +117,28 @@ code {
   transform: translateY(-8px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
+
+/* Print Styles for UHI Card */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  .MuiCard-root,
+  .MuiCard-root * {
+    visibility: visible;
+  }
+  
+  .MuiCard-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    page-break-inside: avoid;
+  }
+  
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+}
