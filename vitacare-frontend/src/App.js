@@ -36,6 +36,9 @@ function App() {
     const token = localStorage.getItem('token');
     if (token) {
       dispatch(loadUser());
+    } else {
+      // If no token, set loading to false immediately
+      // This is handled by the authSlice reducer, but we need to ensure it happens
     }
   }, [dispatch]);
 
