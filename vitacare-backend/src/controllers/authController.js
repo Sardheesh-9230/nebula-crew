@@ -1,0 +1,239 @@
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+
+// Generate JWT Token
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE
+  });
+};
+
+// Generate Refresh Token
+const generateRefreshToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_REFRESH_SECRET, {
+    expiresIn: process.env.JWT_REFRESH_EXPIRE
+  });
+};
+
+// @desc    Register new user
+// @route   POST /api/v1/auth/register
+// @access  Public
+exports.register = async (req, res, next) => {
+  try {
+    const { mobileNumber, email, password, aadhaarNumber, firstName, lastName } = req.body;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ 
+      $or: [{ mobileNumber }, { email }, { aadhaarNumber }] 
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already exists with provided mobile, email or Aadhaar'
+      });
+    }
+
+    // Generate unique health ID
+    const healthId = User.generateHealthId();
+
+    // Create user
+    const user = await User.create({
+      healthId,
+      mobileNumber,
+      email,
+      password,
+      aadhaarNumber,
+      profile: {
+        firstName,
+        lastName
+      }
+    });
+
+    // Generate tokens
+    const token = generateToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    // Save refresh token to user
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'User registered successfully',
+      data: {
+        user: {
+          id: user._id,
+          healthId: user.healthId,
+          mobileNumber: user.mobileNumber,
+          email: user.email,
+          role: user.role,
+          profile: user.profile
+        },
+        token,
+        refreshToken
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Login user
+// @route   POST /api/v1/auth/login
+// @access  Public
+exports.login = async (req, res, next) => {
+  try {
+    const { mobileNumber, password } = req.body;
+
+    // Validate input
+    if (!mobileNumber || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide mobile number and password'
+      });
+    }
+
+    // Check for user
+    const user = await User.findOne({ mobileNumber }).select('+password');
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+
+    // Check if password matches
+    const isMatch = await user.matchPassword(password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+
+    // Check if user is active
+    if (!user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'Account is deactivated'
+      });
+    }
+
+    // Update last login
+    user.lastLogin = Date.now();
+    await user.save();
+
+    // Generate tokens
+    const token = generateToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    // Save refresh token
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      data: {
+        user: {
+          id: user._id,
+          healthId: user.healthId,
+          mobileNumber: user.mobileNumber,
+          email: user.email,
+          role: user.role,
+          profile: user.profile
+        },
+        token,
+        refreshToken
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get current logged in user
+// @route   GET /api/v1/auth/me
+// @access  Private
+exports.getMe = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Logout user
+// @route   POST /api/v1/auth/logout
+// @access  Private
+exports.logout = async (req, res, next) => {
+  try {
+    // Clear refresh token
+    await User.findByIdAndUpdate(req.user._id, { refreshToken: null });
+
+    res.status(200).json({
+      success: true,
+      message: 'Logged out successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Refresh access token
+// @route   POST /api/v1/auth/refresh-token
+// @access  Public
+exports.refreshToken = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Refresh token is required'
+      });
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+    // Find user
+    const user = await User.findById(decoded.id);
+
+    if (!user || user.refreshToken !== refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid refresh token'
+      });
+    }
+
+    // Generate new tokens
+    const newToken = generateToken(user._id);
+    const newRefreshToken = generateRefreshToken(user._id);
+
+    // Save new refresh token
+    user.refreshToken = newRefreshToken;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      data: {
+        token: newToken,
+        refreshToken: newRefreshToken
+      }
+    });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid refresh token'
+    });
+  }
+};
