@@ -17,12 +17,25 @@ import {
   DialogActions,
   Tabs,
   Tab,
+  Avatar,
+  Divider,
+  Fade,
+  Zoom,
+  Slide,
+  IconButton,
 } from '@mui/material';
 import {
   Event,
   Add,
   Cancel,
   CheckCircle,
+  CalendarToday,
+  AccessTime,
+  VideoCall,
+  LocalHospital,
+  Person,
+  Close,
+  WarningAmber,
 } from '@mui/icons-material';
 import { getAppointments, cancelAppointment } from '../redux/slices/appointmentsSlice';
 
@@ -60,13 +73,26 @@ const Appointments = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      scheduled: 'info',
-      confirmed: 'success',
-      completed: 'default',
-      cancelled: 'error',
-      'no-show': 'warning',
+      scheduled: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      confirmed: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      completed: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+      cancelled: 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)',
+      'no-show': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
     };
-    return colors[status] || 'default';
+    return colors[status] || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'confirmed':
+        return <CheckCircle />;
+      case 'cancelled':
+        return <Cancel />;
+      case 'completed':
+        return <CheckCircle />;
+      default:
+        return <AccessTime />;
+    }
   };
 
   const filterAppointments = (appointments, filterType) => {
@@ -93,151 +119,391 @@ const Appointments = () => {
   );
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">
-          {t('appointments')}
-        </Typography>
-        <Button variant="contained" startIcon={<Add />}>
-          {t('bookAppointment')}
-        </Button>
-      </Box>
-
-      <Paper sx={{ mb: 3 }}>
-        <Tabs value={tabValue} onChange={handleTabChange} centered>
-          <Tab label="Upcoming" />
-          <Tab label="Past" />
-          <Tab label="Cancelled" />
-        </Tabs>
-      </Paper>
-
-      {loading && <Typography>Loading...</Typography>}
-
-      {!loading && filteredAppointments.length === 0 && (
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Event sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
-          <Typography variant="h6" color="textSecondary">
-            {t('noAppointments')}
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Book your first appointment to get started.
-          </Typography>
-          <Button variant="contained" sx={{ mt: 2 }} startIcon={<Add />}>
-            {t('bookAppointment')}
-          </Button>
-        </Paper>
-      )}
-
-      <Grid container spacing={3}>
-        {filteredAppointments.map((appointment) => (
-          <Grid item xs={12} md={6} key={appointment._id}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Box>
-                    <Typography variant="h6" component="div">
-                      Appointment #{appointment.appointmentId}
-                    </Typography>
-                    <Chip
-                      label={appointment.status.toUpperCase()}
-                      color={getStatusColor(appointment.status)}
-                      size="small"
-                      sx={{ mt: 1 }}
-                    />
-                  </Box>
-                  <Chip
-                    label={appointment.type}
-                    variant="outlined"
-                    size="small"
-                  />
-                </Box>
-
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    <strong>Date:</strong> {new Date(appointment.appointmentDate).toLocaleDateString()}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    <strong>Time:</strong> {appointment.timeSlot.start} - {appointment.timeSlot.end}
-                  </Typography>
-                  
-                  {appointment.doctorId && (
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                      <strong>Doctor:</strong> {appointment.doctorId.specialization?.[0] || 'General'}
-                    </Typography>
-                  )}
-
-                  {appointment.hospitalId && (
-                    <Typography variant="body2" color="text.secondary">
-                      <strong>Hospital:</strong> {appointment.hospitalId.name}
-                    </Typography>
-                  )}
-
-                  {appointment.reason && (
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      <strong>Reason:</strong> {appointment.reason}
-                    </Typography>
-                  )}
-
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    <strong>Fee:</strong> ₹{appointment.consultationFee}
-                  </Typography>
-                </Box>
-
-                {appointment.status === 'scheduled' && new Date(appointment.appointmentDate) > new Date() && (
-                  <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<CheckCircle />}
-                      color="success"
-                    >
-                      Confirm
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<Cancel />}
-                      color="error"
-                      onClick={() => handleCancelClick(appointment)}
-                    >
-                      Cancel
-                    </Button>
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* Cancel Confirmation Dialog */}
-      <Dialog open={cancelDialogOpen} onClose={() => setCancelDialogOpen(false)}>
-        <DialogTitle>Cancel Appointment</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Are you sure you want to cancel this appointment?
-          </Typography>
-          {selectedAppointment && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="body2">
-                Date: {new Date(selectedAppointment.appointmentDate).toLocaleDateString()}
+    <Box sx={{ 
+      minHeight: '100vh',
+      background: 'linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%)',
+      py: 4
+    }}>
+      <Container maxWidth="lg">
+        {/* Header Section */}
+        <Fade in timeout={600}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
+            <Box>
+              <Typography 
+                variant="h3" 
+                sx={{ 
+                  fontWeight: 700,
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  mb: 1,
+                }}
+              >
+                📅 My Appointments
               </Typography>
-              <Typography variant="body2">
-                Time: {selectedAppointment.timeSlot.start}
+              <Typography variant="h6" color="textSecondary">
+                Manage your upcoming and past appointments
               </Typography>
             </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setCancelDialogOpen(false)}>
-            No, Keep It
-          </Button>
-          <Button onClick={handleCancelConfirm} color="error" variant="contained">
-            Yes, Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+            <Button 
+              variant="contained" 
+              startIcon={<Add />}
+              size="large"
+              onClick={() => navigate('/book-appointment')}
+              sx={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                px: 4,
+                py: 1.5,
+                borderRadius: 2,
+                fontWeight: 600,
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
+                  transform: 'scale(1.05)',
+                  boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
+                },
+                transition: 'all 0.3s ease',
+              }}
+            >
+              Book Appointment
+            </Button>
+          </Box>
+        </Fade>
+
+        {/* Tabs Section */}
+        <Slide direction="down" in timeout={800}>
+          <Paper sx={{ mb: 4, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+            <Tabs 
+              value={tabValue} 
+              onChange={handleTabChange} 
+              centered
+              sx={{
+                '& .MuiTab-root': {
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  py: 2,
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    background: 'rgba(102, 126, 234, 0.05)',
+                  },
+                },
+                '& .Mui-selected': {
+                  background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
+                },
+                '& .MuiTabs-indicator': {
+                  height: 3,
+                  background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+                },
+              }}
+            >
+              <Tab label="🔮 Upcoming" />
+              <Tab label="✅ Past" />
+              <Tab label="❌ Cancelled" />
+            </Tabs>
+          </Paper>
+        </Slide>
+
+        {loading && (
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <Typography variant="h6" color="textSecondary">Loading appointments...</Typography>
+          </Box>
+        )}
+
+        {!loading && filteredAppointments.length === 0 && (
+          <Zoom in timeout={1000}>
+            <Card sx={{ 
+              p: 8, 
+              textAlign: 'center',
+              borderRadius: 3,
+              background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
+              border: '2px dashed rgba(102, 126, 234, 0.2)',
+            }}>
+              <Event sx={{ fontSize: 100, color: '#667eea', opacity: 0.3, mb: 2 }} />
+              <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
+                No {tabValue === 0 ? 'Upcoming' : tabValue === 1 ? 'Past' : 'Cancelled'} Appointments
+              </Typography>
+              <Typography variant="body1" color="textSecondary" sx={{ mb: 3 }}>
+                {tabValue === 0 ? 'Book your first appointment to get started.' : 'No appointments found in this category.'}
+              </Typography>
+              {tabValue === 0 && (
+                <Button 
+                  variant="contained" 
+                  startIcon={<Add />}
+                  size="large"
+                  sx={{
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: 2,
+                  }}
+                >
+                  Book Your First Appointment
+                </Button>
+              )}
+            </Card>
+          </Zoom>
+        )}
+
+        {/* Appointments Grid */}
+        <Grid container spacing={3}>
+          {filteredAppointments.map((appointment, index) => (
+            <Grid item xs={12} md={6} key={appointment._id}>
+              <Zoom in timeout={600 + index * 100}>
+                <Card sx={{
+                  borderRadius: 3,
+                  position: 'relative',
+                  overflow: 'hidden',
+                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': {
+                    transform: 'translateY(-12px)',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+                  },
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 4,
+                    background: getStatusColor(appointment.status),
+                  },
+                }}>
+                  <CardContent sx={{ p: 3 }}>
+                    {/* Header */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+                      <Box>
+                        <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 600 }}>
+                          Appointment ID
+                        </Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                          #{appointment.appointmentId || appointment._id.slice(-6)}
+                        </Typography>
+                      </Box>
+                      <Chip
+                        icon={getStatusIcon(appointment.status)}
+                        label={appointment.status.toUpperCase()}
+                        sx={{
+                          background: getStatusColor(appointment.status),
+                          color: '#fff',
+                          fontWeight: 600,
+                          fontSize: '0.75rem',
+                        }}
+                      />
+                    </Box>
+
+                    {/* Type Badge */}
+                    <Chip
+                      icon={appointment.type === 'video' ? <VideoCall /> : <LocalHospital />}
+                      label={appointment.type === 'video' ? 'Video Consultation' : 'In-Person Visit'}
+                      variant="outlined"
+                      sx={{
+                        mb: 3,
+                        borderColor: '#667eea',
+                        color: '#667eea',
+                        fontWeight: 600,
+                      }}
+                    />
+
+                    <Divider sx={{ mb: 3 }} />
+
+                    {/* Date & Time */}
+                    <Box sx={{ mb: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <Avatar sx={{ 
+                          background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%)',
+                          mr: 2,
+                          width: 40,
+                          height: 40,
+                        }}>
+                          <CalendarToday sx={{ color: '#667eea', fontSize: 20 }} />
+                        </Avatar>
+                        <Box>
+                          <Typography variant="caption" color="textSecondary">
+                            Appointment Date
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            {new Date(appointment.appointmentDate).toLocaleDateString('en-US', {
+                              weekday: 'short',
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Avatar sx={{ 
+                          background: 'linear-gradient(135deg, rgba(67, 233, 123, 0.15) 0%, rgba(56, 249, 215, 0.15) 100%)',
+                          mr: 2,
+                          width: 40,
+                          height: 40,
+                        }}>
+                          <AccessTime sx={{ color: '#43e97b', fontSize: 20 }} />
+                        </Avatar>
+                        <Box>
+                          <Typography variant="caption" color="textSecondary">
+                            Time Slot
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            {appointment.timeSlot?.start} - {appointment.timeSlot?.end}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    {/* Reason */}
+                    {appointment.reason && (
+                      <Box sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        background: 'rgba(102, 126, 234, 0.05)',
+                        mb: 2,
+                      }}>
+                        <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 600 }}>
+                          Reason for Visit
+                        </Typography>
+                        <Typography variant="body2">
+                          {appointment.reason}
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {/* Actions */}
+                    <Box sx={{ display: 'flex', gap: 1, mt: 3 }}>
+                      {appointment.status === 'scheduled' || appointment.status === 'confirmed' ? (
+                        <>
+                          {appointment.type === 'video' && (
+                            <Button
+                              variant="contained"
+                              startIcon={<VideoCall />}
+                              fullWidth
+                              sx={{
+                                background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                                fontWeight: 600,
+                                '&:hover': {
+                                  background: 'linear-gradient(135deg, #38f9d7 0%, #43e97b 100%)',
+                                },
+                              }}
+                            >
+                              Join Call
+                            </Button>
+                          )}
+                          <Button
+                            variant="outlined"
+                            startIcon={<Cancel />}
+                            fullWidth
+                            onClick={() => handleCancelClick(appointment)}
+                            sx={{
+                              borderColor: '#f5576c',
+                              color: '#f5576c',
+                              fontWeight: 600,
+                              '&:hover': {
+                                borderColor: '#f093fb',
+                                background: 'rgba(245, 87, 108, 0.1)',
+                              },
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          variant="outlined"
+                          fullWidth
+                          sx={{
+                            borderColor: '#667eea',
+                            color: '#667eea',
+                            fontWeight: 600,
+                          }}
+                        >
+                          View Details
+                        </Button>
+                      )}
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Zoom>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* Cancel Confirmation Dialog */}
+        <Dialog 
+          open={cancelDialogOpen} 
+          onClose={() => setCancelDialogOpen(false)}
+          PaperProps={{
+            sx: {
+              borderRadius: 3,
+              minWidth: 400,
+            }
+          }}
+        >
+          <DialogTitle sx={{ 
+            background: 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)',
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+          }}>
+            <WarningAmber />
+            Cancel Appointment
+          </DialogTitle>
+          <DialogContent sx={{ pt: 3 }}>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              Are you sure you want to cancel this appointment?
+            </Typography>
+            {selectedAppointment && (
+              <Box sx={{ 
+                p: 2, 
+                borderRadius: 2,
+                background: 'rgba(245, 87, 108, 0.05)',
+                border: '1px solid rgba(245, 87, 108, 0.2)',
+              }}>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  <strong>Date:</strong> {new Date(selectedAppointment.appointmentDate).toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Time:</strong> {selectedAppointment.timeSlot?.start} - {selectedAppointment.timeSlot?.end}
+                </Typography>
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button 
+              onClick={() => setCancelDialogOpen(false)}
+              variant="outlined"
+              sx={{
+                borderColor: '#667eea',
+                color: '#667eea',
+                '&:hover': {
+                  borderColor: '#764ba2',
+                  background: 'rgba(102, 126, 234, 0.1)',
+                },
+              }}
+            >
+              No, Keep It
+            </Button>
+            <Button 
+              onClick={handleCancelConfirm} 
+              variant="contained"
+              startIcon={<Cancel />}
+              sx={{
+                background: 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                },
+              }}
+            >
+              Yes, Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
+    </Box>
   );
 };
 

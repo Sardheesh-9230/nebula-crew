@@ -11,10 +11,12 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import MedicalRecords from './pages/MedicalRecords';
 import Appointments from './pages/Appointments';
+import BookAppointment from './pages/BookAppointment';
 
 // Components
 import Header from './components/common/Header';
 import Loader from './components/common/Loader';
+import SOSButton from './components/common/SOSButton';
 
 // Private Route Component
 const PrivateRoute = ({ children }) => {
@@ -49,6 +51,7 @@ function App() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {isAuthenticated && <Header />}
+      {isAuthenticated && <SOSButton />}
       
       <Box component="main" sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}>
         <Routes>
@@ -92,6 +95,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Appointments />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/book-appointment" 
+            element={
+              <PrivateRoute>
+                <BookAppointment />
               </PrivateRoute>
             } 
           />

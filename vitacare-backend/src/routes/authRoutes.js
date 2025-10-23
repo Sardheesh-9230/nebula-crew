@@ -14,16 +14,23 @@ const router = express.Router();
 
 // Validation rules
 const registerValidation = [
-  body('mobileNumber').isMobilePhone().withMessage('Please provide a valid mobile number'),
+  body('mobileNumber')
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage('Please provide a valid 10-digit Indian mobile number'),
   body('email').isEmail().withMessage('Please provide a valid email'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('aadhaarNumber').isLength({ min: 12, max: 12 }).withMessage('Aadhaar number must be 12 digits'),
+  body('aadhaarNumber')
+    .isLength({ min: 12, max: 12 })
+    .isNumeric()
+    .withMessage('Aadhaar number must be 12 digits'),
   body('firstName').notEmpty().withMessage('First name is required'),
   body('lastName').notEmpty().withMessage('Last name is required')
 ];
 
 const loginValidation = [
-  body('mobileNumber').isMobilePhone().withMessage('Please provide a valid mobile number'),
+  body('mobileNumber')
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage('Please provide a valid 10-digit Indian mobile number'),
   body('password').notEmpty().withMessage('Password is required')
 ];
 

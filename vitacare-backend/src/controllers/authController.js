@@ -34,8 +34,8 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    // Generate unique health ID
-    const healthId = User.generateHealthId();
+    // Generate UHI (Universal Health Identity) in format: FIRSTNAME1234
+    const healthId = User.generateUHI(firstName, aadhaarNumber);
 
     // Create user
     const user = await User.create({
@@ -84,18 +84,21 @@ exports.register = async (req, res, next) => {
 // @access  Public
 exports.login = async (req, res, next) => {
   try {
-    const { mobileNumber, password } = req.body;
+    const { mobileNumber, password, uhi } = req.body;
+    const loginIdentifier = uhi || mobileNumber;
 
     // Validate input
-    if (!mobileNumber || !password) {
+    if (!loginIdentifier || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide mobile number and password'
+        message: 'Please provide UHI/mobile number and password'
       });
     }
 
-    // Check for user
-    const user = await User.findOne({ mobileNumber }).select('+password');
+    // Check for user by UHI (healthId) or mobile number
+    const user = await User.findOne({ 
+      $or: [{ healthId: loginIdentifier }, { mobileNumber: loginIdentifier }] 
+    }).select('+password');
 
     if (!user) {
       return res.status(401).json({

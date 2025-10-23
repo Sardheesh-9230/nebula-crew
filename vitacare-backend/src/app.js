@@ -11,6 +11,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const medicalRecordRoutes = require('./routes/medicalRecordRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -55,6 +56,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/records', medicalRecordRoutes);
 app.use('/api/v1/appointments', appointmentRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
 
 // Welcome route
 app.get('/', (req, res) => {
@@ -67,6 +69,7 @@ app.get('/', (req, res) => {
       users: '/api/v1/users',
       records: '/api/v1/records',
       appointments: '/api/v1/appointments',
+      notifications: '/api/v1/notifications',
       health: '/health'
     }
   });

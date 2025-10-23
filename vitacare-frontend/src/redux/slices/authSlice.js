@@ -14,7 +14,16 @@ export const register = createAsyncThunk(
       return response.data.data;
     } catch (error) {
       const message = error.response?.data?.message || 'Registration failed';
-      toast.error(message);
+      
+      // Show validation errors if available
+      if (error.response?.data?.errors) {
+        error.response.data.errors.forEach(err => {
+          toast.error(`${err.field}: ${err.message}`);
+        });
+      } else {
+        toast.error(message);
+      }
+      
       return rejectWithValue(message);
     }
   }
