@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Box } from '@mui/material';
+import { Box, ThemeProvider } from '@mui/material';
 import { loadUser } from './redux/slices/authSlice';
+import governmentTheme from './theme/governmentTheme';
 
 // Pages
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import RegistrationSuccess from './pages/RegistrationSuccess';
@@ -80,12 +82,19 @@ function App() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {isAuthenticated && <Header />}
-      {isAuthenticated && <SOSButton />}
-      
-      <Box component="main" sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}>
+    <ThemeProvider theme={governmentTheme}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        {isAuthenticated && <Header />}
+        {isAuthenticated && <SOSButton />}
+        
+        <Box component="main" sx={{ flexGrow: 1, bgcolor: 'background.default', p: isAuthenticated ? 3 : 0 }}>
         <Routes>
+          {/* Landing Page - Public Route */}
+          <Route 
+            path="/" 
+            element={isAuthenticated ? <Navigate to="/dashboard" /> : <LandingPage />} 
+          />
+
           {/* Public Routes */}
           <Route 
             path="/login" 
@@ -200,12 +209,6 @@ function App() {
             element={<PatientDiscovery />} 
           />
 
-          {/* Default Route */}
-          <Route 
-            path="/" 
-            element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} 
-          />
-          
           {/* 404 Route */}
           <Route 
             path="*" 
@@ -214,6 +217,7 @@ function App() {
         </Routes>
       </Box>
     </Box>
+    </ThemeProvider>
   );
 }
 

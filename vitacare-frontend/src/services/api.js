@@ -33,8 +33,17 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem('refreshToken');
+        
+        // Only try to refresh if we have a refresh token
+        if (!refreshToken) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          window.location.href = '/login';
+          return Promise.reject(error);
+        }
+
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/auth/refresh-token`,
+          `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1'}/auth/refresh-token`,
           { refreshToken }
         );
 

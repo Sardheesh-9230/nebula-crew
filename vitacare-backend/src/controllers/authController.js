@@ -32,23 +32,6 @@ exports.register = async (req, res, next) => {
       emergencyContact
     } = req.body;
 
-    // Check registration time window (5:30 PM - 7:30 PM IST)
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const currentTime = hours * 60 + minutes;
-    
-    const startTime = 17 * 60 + 30; // 5:30 PM
-    const endTime = 19 * 60 + 30;   // 7:30 PM
-    
-    if (currentTime < startTime || currentTime > endTime) {
-      return res.status(403).json({
-        success: false,
-        message: 'Patient registration is only allowed between 5:30 PM and 7:30 PM',
-        registrationHours: '5:30 PM - 7:30 PM'
-      });
-    }
-
     // Validate required fields
     if (!aadhaarNumber || !firstName || !lastName || !mobileNumber || !bloodGroup || !emergencyContact) {
       return res.status(400).json({

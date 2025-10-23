@@ -485,6 +485,91 @@ const Profile = () => {
           </Card>
         </Zoom>
 
+        {/* Emergency Contacts Section */}
+        {user?.emergencyContacts && user.emergencyContacts.length > 0 && (
+          <Zoom in timeout={1100}>
+            <Card sx={{
+              mt: 3,
+              borderRadius: 3,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                boxShadow: '0 12px 48px rgba(0,0,0,0.15)',
+              },
+            }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography 
+                  variant="h5" 
+                  sx={{ 
+                    fontWeight: 700,
+                    background: 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    mb: 3,
+                  }}
+                >
+                  Emergency Contacts
+                </Typography>
+
+                <Divider sx={{ mb: 3 }} />
+
+                <Grid container spacing={3}>
+                  {user.emergencyContacts.map((contact, index) => (
+                    <Grid item xs={12} md={6} key={index}>
+                      <Card 
+                        sx={{ 
+                          p: 3, 
+                          background: 'linear-gradient(135deg, rgba(245, 87, 108, 0.05) 0%, rgba(240, 147, 251, 0.05) 100%)',
+                          border: '2px solid rgba(245, 87, 108, 0.2)',
+                          borderRadius: 2,
+                          transition: 'all 0.3s ease',
+                          '&:hover': {
+                            transform: 'translateY(-4px)',
+                            boxShadow: '0 8px 24px rgba(245, 87, 108, 0.2)',
+                          },
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                          <Avatar 
+                            sx={{ 
+                              background: 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)',
+                              width: 56,
+                              height: 56,
+                            }}
+                          >
+                            <Person sx={{ fontSize: 32 }} />
+                          </Avatar>
+                          <Box>
+                            <Typography variant="h6" fontWeight="700" color="text.primary">
+                              {contact.name}
+                            </Typography>
+                            <Chip 
+                              label={contact.relationship}
+                              size="small"
+                              sx={{ 
+                                background: 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)',
+                                color: '#fff',
+                                fontWeight: 600,
+                                mt: 0.5,
+                              }}
+                            />
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Phone sx={{ color: '#667eea', fontSize: 20 }} />
+                          <Typography variant="body1" fontWeight="600" color="text.secondary">
+                            {contact.mobile}
+                          </Typography>
+                        </Box>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </CardContent>
+            </Card>
+          </Zoom>
+        )}
+
         {/* View UHI Card Button */}
         <Zoom in timeout={1200}>
           <Box sx={{ mt: 3, textAlign: 'center' }}>

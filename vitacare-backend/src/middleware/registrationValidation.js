@@ -19,9 +19,7 @@ exports.registerValidation = [
   body('lastName')
     .trim()
     .notEmpty()
-    .withMessage('Last name is required')
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Last name must be between 2 and 50 characters'),
+    .withMessage('Last name is required'),
   
   body('mobileNumber')
     .trim()
@@ -42,9 +40,7 @@ exports.registerValidation = [
   body('password')
     .trim()
     .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+    .withMessage('Password must be at least 8 characters long'),
   
   body('bloodGroup')
     .trim()
@@ -57,15 +53,11 @@ exports.registerValidation = [
   body('address.line1')
     .trim()
     .notEmpty()
-    .withMessage('Address line 1 is required')
-    .isLength({ min: 5, max: 200 })
-    .withMessage('Address line 1 must be between 5 and 200 characters'),
+    .withMessage('Address line 1 is required'),
   
   body('address.line2')
     .optional({ checkFalsy: true })
-    .trim()
-    .isLength({ max: 200 })
-    .withMessage('Address line 2 must not exceed 200 characters'),
+    .trim(),
   
   body('address.city')
     .trim()
@@ -116,13 +108,40 @@ exports.registerValidation = [
 // Login validation rules
 exports.loginValidation = [
   body('mobileNumber')
+    .optional({ checkFalsy: true })
     .trim()
-    .notEmpty()
-    .withMessage('Mobile number is required')
-    .isLength({ min: 10, max: 10 })
-    .withMessage('Mobile number must be exactly 10 digits')
-    .isNumeric()
-    .withMessage('Mobile number must contain only numbers'),
+    .custom((value, { req }) => {
+      // If UHI is provided, mobileNumber is optional
+      if (req.body.uhi) {
+        return true;
+      }
+      // If no UHI, validate mobile number
+      if (!value) {
+        throw new Error('Mobile number or UHI is required');
+      }
+      if (value.length !== 10) {
+        throw new Error('Mobile number must be exactly 10 digits');
+      }
+      if (!/^\d+$/.test(value)) {
+        throw new Error('Mobile number must contain only numbers');
+      }
+      return true;
+    }),
+  
+  body('uhi')
+    .optional({ checkFalsy: true })
+    .trim()
+    .custom((value, { req }) => {
+      // Either UHI or mobileNumber must be provided
+      if (!value && !req.body.mobileNumber) {
+        throw new Error('Mobile number or UHI is required');
+      }
+      // If UHI is provided, validate its format (alphanumeric, typically FIRSTNAME followed by digits)
+      if (value && !/^[A-Z]+\d+$/.test(value)) {
+        throw new Error('UHI must be in format: FIRSTNAME followed by numbers (e.g., JOHN1234)');
+      }
+      return true;
+    }),
   
   body('password')
     .trim()

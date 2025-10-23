@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Container,
   Grid,
@@ -36,6 +37,7 @@ import {
   AccessTime,
   LocalPharmacy,
   Bloodtype,
+  Phone,
 } from '@mui/icons-material';
 import { getMedicalRecords } from '../redux/slices/recordsSlice';
 import { getAppointments } from '../redux/slices/appointmentsSlice';
@@ -489,6 +491,66 @@ const Dashboard = () => {
               </Card>
             </Grow>
           </Grid>
+
+          {/* Emergency Contacts Card */}
+          {user?.emergencyContacts && user.emergencyContacts.length > 0 && (
+            <Grid item xs={12}>
+              <Grow in timeout={1800}>
+                <Card sx={{
+                  borderRadius: 3,
+                  background: 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)',
+                  boxShadow: '0 8px 32px rgba(245, 87, 108, 0.2)',
+                }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <Phone sx={{ fontSize: 32, color: '#fff', mr: 1 }} />
+                      <Typography variant="h6" fontWeight={700} color="#fff">
+                        Emergency Contacts
+                      </Typography>
+                    </Box>
+                    <Grid container spacing={2}>
+                      {user.emergencyContacts.map((contact, index) => (
+                        <Grid item xs={12} sm={6} md={4} key={index}>
+                          <Box 
+                            sx={{ 
+                              bgcolor: 'rgba(255,255,255,0.95)', 
+                              borderRadius: 2, 
+                              p: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-4px)',
+                                boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+                              },
+                            }}
+                          >
+                            <Typography variant="subtitle1" fontWeight={700} color="text.primary">
+                              {contact.name}
+                            </Typography>
+                            <Chip 
+                              label={contact.relationship}
+                              size="small"
+                              sx={{ 
+                                bgcolor: 'rgba(245, 87, 108, 0.1)',
+                                color: '#f5576c',
+                                fontWeight: 600,
+                                my: 1,
+                              }}
+                            />
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1 }}>
+                              <Phone sx={{ fontSize: 16, color: '#667eea' }} />
+                              <Typography variant="body2" fontWeight={600} color="text.secondary">
+                                {contact.mobile}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </CardContent>
+                </Card>
+              </Grow>
+            </Grid>
+          )}
         </Grid>
 
         {/* Upcoming Appointments Section with Slide Animation */}

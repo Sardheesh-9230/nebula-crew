@@ -34,6 +34,9 @@ import {
   ArrowForward,
   CheckCircle,
   FiberManualRecord,
+  Home,
+  LocationCity,
+  People,
 } from '@mui/icons-material';
 import { register } from '../redux/slices/authSlice';
 
@@ -149,6 +152,7 @@ const Register = () => {
           bottom: 0,
           background: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
           opacity: 0.4,
+          pointerEvents: 'none',
         },
         '&::after': {
           content: '""',
@@ -159,6 +163,7 @@ const Register = () => {
           height: '200%',
           background: 'radial-gradient(circle at 20% 50%, rgba(240, 147, 251, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(79, 172, 254, 0.3) 0%, transparent 50%)',
           animation: 'float 20s ease-in-out infinite',
+          pointerEvents: 'none',
         },
         '@keyframes float': {
           '0%, 100%': {
@@ -185,6 +190,7 @@ const Register = () => {
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(10px)',
           animation: 'float1 15s ease-in-out infinite',
+          pointerEvents: 'none',
           '@keyframes float1': {
             '0%, 100%': { transform: 'translate(0, 0) rotate(0deg)' },
             '50%': { transform: 'translate(50px, -50px) rotate(180deg)' },
@@ -202,6 +208,7 @@ const Register = () => {
           background: 'rgba(255, 255, 255, 0.08)',
           backdropFilter: 'blur(10px)',
           animation: 'float2 18s ease-in-out infinite',
+          pointerEvents: 'none',
           '@keyframes float2': {
             '0%, 100%': { transform: 'translate(0, 0) rotate(0deg)' },
             '50%': { transform: 'translate(-40px, 40px) rotate(-180deg)' },
@@ -219,6 +226,7 @@ const Register = () => {
           background: 'rgba(255, 255, 255, 0.12)',
           backdropFilter: 'blur(10px)',
           animation: 'float3 12s ease-in-out infinite',
+          pointerEvents: 'none',
           '@keyframes float3': {
             '0%, 100%': { transform: 'translateY(0)' },
             '50%': { transform: 'translateY(-60px)' },
@@ -735,7 +743,7 @@ const Register = () => {
                           type={showPassword ? 'text' : 'password'}
                           id="password"
                           autoComplete="new-password"
-                          helperText="Minimum 6 characters"
+                          helperText="Minimum 8 characters"
                           value={formData.password}
                           onChange={handleChange}
                           InputProps={{
@@ -789,14 +797,430 @@ const Register = () => {
                         />
                       </Zoom>
                     </Grid>
+
+                    {/* Address Section Header */}
+                    <Grid item xs={12}>
+                      <Zoom in={true} timeout={1250}>
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            mt: 2,
+                            mb: 1,
+                            fontWeight: 700,
+                            color: '#667eea',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                          }}
+                        >
+                          <Home sx={{ color: '#667eea' }} />
+                          Address Details
+                        </Typography>
+                      </Zoom>
+                    </Grid>
+
+                    {/* Address Line 1 */}
+                    <Grid item xs={12}>
+                      <Zoom in={true} timeout={1300}>
+                        <TextField
+                          required
+                          fullWidth
+                          name="address.line1"
+                          label="Address Line 1"
+                          placeholder="House/Flat No., Building Name"
+                          value={formData.address.line1}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Home sx={{ color: '#667eea' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(102, 126, 234, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#667eea',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                              },
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#667eea',
+                              fontWeight: 600,
+                            },
+                          }}
+                        />
+                      </Zoom>
+                    </Grid>
+
+                    {/* Address Line 2 */}
+                    <Grid item xs={12}>
+                      <Zoom in={true} timeout={1350}>
+                        <TextField
+                          fullWidth
+                          name="address.line2"
+                          label="Address Line 2 (Optional)"
+                          placeholder="Street Name, Area"
+                          value={formData.address.line2}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Home sx={{ color: '#667eea' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(102, 126, 234, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#667eea',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                              },
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#667eea',
+                              fontWeight: 600,
+                            },
+                          }}
+                        />
+                      </Zoom>
+                    </Grid>
+
+                    {/* City */}
+                    <Grid item xs={12} sm={6}>
+                      <Zoom in={true} timeout={1400}>
+                        <TextField
+                          required
+                          fullWidth
+                          name="address.city"
+                          label="City"
+                          value={formData.address.city}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <LocationCity sx={{ color: '#667eea' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(102, 126, 234, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#667eea',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                              },
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#667eea',
+                              fontWeight: 600,
+                            },
+                          }}
+                        />
+                      </Zoom>
+                    </Grid>
+
+                    {/* State */}
+                    <Grid item xs={12} sm={6}>
+                      <Zoom in={true} timeout={1450}>
+                        <TextField
+                          required
+                          fullWidth
+                          name="address.state"
+                          label="State"
+                          value={formData.address.state}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <LocationCity sx={{ color: '#667eea' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(102, 126, 234, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#667eea',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                              },
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#667eea',
+                              fontWeight: 600,
+                            },
+                          }}
+                        />
+                      </Zoom>
+                    </Grid>
+
+                    {/* Pincode */}
+                    <Grid item xs={12} sm={6}>
+                      <Zoom in={true} timeout={1500}>
+                        <TextField
+                          required
+                          fullWidth
+                          name="address.pincode"
+                          label="Pincode"
+                          placeholder="6-digit pincode"
+                          inputProps={{ maxLength: 6 }}
+                          value={formData.address.pincode}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <LocationCity sx={{ color: '#667eea' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(102, 126, 234, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#667eea',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                              },
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#667eea',
+                              fontWeight: 600,
+                            },
+                          }}
+                        />
+                      </Zoom>
+                    </Grid>
+
+                    {/* Emergency Contact Section Header */}
+                    <Grid item xs={12}>
+                      <Zoom in={true} timeout={1550}>
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            mt: 2,
+                            mb: 1,
+                            fontWeight: 700,
+                            color: '#f5576c',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                          }}
+                        >
+                          <Phone sx={{ color: '#f5576c' }} />
+                          Emergency Contact
+                        </Typography>
+                      </Zoom>
+                    </Grid>
+
+                    {/* Emergency Contact Name */}
+                    <Grid item xs={12} sm={6}>
+                      <Zoom in={true} timeout={1600}>
+                        <TextField
+                          required
+                          fullWidth
+                          name="emergencyContact.name"
+                          label="Contact Name"
+                          value={formData.emergencyContact.name}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Person sx={{ color: '#f5576c' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#f5576c',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#f5576c',
+                                borderWidth: 2,
+                              },
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#f5576c',
+                              fontWeight: 600,
+                            },
+                          }}
+                        />
+                      </Zoom>
+                    </Grid>
+
+                    {/* Emergency Contact Relationship */}
+                    <Grid item xs={12} sm={6}>
+                      <Zoom in={true} timeout={1650}>
+                        <TextField
+                          required
+                          fullWidth
+                          name="emergencyContact.relationship"
+                          label="Relationship"
+                          placeholder="e.g., Father, Mother, Spouse"
+                          value={formData.emergencyContact.relationship}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <People sx={{ color: '#f5576c' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#f5576c',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#f5576c',
+                                borderWidth: 2,
+                              },
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#f5576c',
+                              fontWeight: 600,
+                            },
+                          }}
+                        />
+                      </Zoom>
+                    </Grid>
+
+                    {/* Emergency Contact Mobile */}
+                    <Grid item xs={12} sm={6}>
+                      <Zoom in={true} timeout={1700}>
+                        <TextField
+                          required
+                          fullWidth
+                          name="emergencyContact.mobile"
+                          label="Contact Mobile"
+                          placeholder="10-digit mobile number"
+                          inputProps={{ maxLength: 10 }}
+                          value={formData.emergencyContact.mobile}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Phone sx={{ color: '#f5576c' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#f5576c',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#f5576c',
+                                borderWidth: 2,
+                              },
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#f5576c',
+                              fontWeight: 600,
+                            },
+                          }}
+                        />
+                      </Zoom>
+                    </Grid>
                   </Grid>
 
-                  <Zoom in={true} timeout={1300}>
+                  <Zoom in={true} timeout={1750}>
                     <Button
                       type="submit"
                       fullWidth
                       variant="contained"
-                      disabled={loading || progress < 100}
+                      disabled={loading}
                       endIcon={!loading && <ArrowForward />}
                       sx={{
                         mt: 4,
@@ -806,12 +1230,8 @@ const Register = () => {
                         fontSize: '1.1rem',
                         fontWeight: 700,
                         textTransform: 'none',
-                        background: progress === 100 
-                          ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
-                          : 'linear-gradient(135deg, #ccc 0%, #999 100%)',
-                        boxShadow: progress === 100 
-                          ? '0 10px 30px rgba(245, 87, 108, 0.4)'
-                          : '0 5px 15px rgba(0,0,0,0.2)',
+                        background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                        boxShadow: '0 10px 30px rgba(245, 87, 108, 0.4)',
                         position: 'relative',
                         overflow: 'hidden',
                         '&::before': {
@@ -827,16 +1247,12 @@ const Register = () => {
                           transition: 'opacity 0.5s ease',
                         },
                         '&:hover::before': {
-                          opacity: progress === 100 ? 1 : 0,
+                          opacity: 1,
                         },
                         '&:hover': {
-                          background: progress === 100 
-                            ? 'linear-gradient(135deg, #e082ea 0%, #e4465b 100%)'
-                            : 'linear-gradient(135deg, #ccc 0%, #999 100%)',
-                          boxShadow: progress === 100 
-                            ? '0 15px 40px rgba(245, 87, 108, 0.5)'
-                            : '0 5px 15px rgba(0,0,0,0.2)',
-                          transform: progress === 100 ? 'translateY(-2px) scale(1.02)' : 'none',
+                          background: 'linear-gradient(135deg, #e082ea 0%, #e4465b 100%)',
+                          boxShadow: '0 15px 40px rgba(245, 87, 108, 0.5)',
+                          transform: 'translateY(-2px) scale(1.02)',
                         },
                         '&:active': {
                           transform: 'translateY(0) scale(1)',
@@ -853,10 +1269,8 @@ const Register = () => {
                           <CircularProgress size={26} sx={{ color: '#fff' }} />
                           <Typography>Creating Account...</Typography>
                         </Box>
-                      ) : progress === 100 ? (
-                        'Create Account ✨'
                       ) : (
-                        `Complete Form (${progress}%)`
+                        'Create Account ✨'
                       )}
                     </Button>
                   </Zoom>
@@ -888,6 +1302,23 @@ const Register = () => {
                         }}
                       >
                         Sign In
+                      </Button>
+                    </Link>
+                  </Box>
+                  <Box sx={{ textAlign: 'center', mt: 2 }}>
+                    <Link to="/" style={{ textDecoration: 'none' }}>
+                      <Button
+                        variant="text"
+                        sx={{
+                          color: '#667eea',
+                          textTransform: 'none',
+                          fontWeight: 500,
+                          '&:hover': {
+                            background: 'rgba(102, 126, 234, 0.05)',
+                          },
+                        }}
+                      >
+                        ← Back to Home
                       </Button>
                     </Link>
                   </Box>
