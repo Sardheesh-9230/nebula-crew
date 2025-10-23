@@ -19,6 +19,13 @@ import {
   Zoom,
   Slide,
   Grow,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Divider,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import {
   MedicalServices,
@@ -31,6 +38,17 @@ import {
   CalendarToday,
   ArrowForward,
   Add,
+  CreditCard,
+  Phone,
+  Emergency,
+  Notifications,
+  Download,
+  Share,
+  CheckCircle,
+  AccessTime,
+  LocalPharmacy,
+  Bloodtype,
+  FitnessCenter,
 } from '@mui/icons-material';
 import { getMedicalRecords } from '../redux/slices/recordsSlice';
 import { getAppointments } from '../redux/slices/appointmentsSlice';
@@ -231,6 +249,261 @@ const Dashboard = () => {
               </Zoom>
             </Grid>
           ))}
+        </Grid>
+
+        {/* Quick Actions Section */}
+        <Fade in timeout={1200}>
+          <Box sx={{ mb: 6 }}>
+            <Typography 
+              variant="h5" 
+              sx={{ 
+                fontWeight: 700,
+                mb: 3,
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              ⚡ Quick Actions
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card
+                  onClick={() => navigate('/profile')}
+                  sx={{
+                    cursor: 'pointer',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: '#fff',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 12px 24px rgba(102, 126, 234, 0.4)',
+                    },
+                    transition: 'all 0.3s ease',
+                    borderRadius: 2,
+                  }}
+                >
+                  <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                    <CreditCard sx={{ fontSize: 48, mb: 1 }} />
+                    <Typography variant="body1" fontWeight={600}>
+                      View UHI Card
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card
+                  onClick={() => navigate('/book-appointment')}
+                  sx={{
+                    cursor: 'pointer',
+                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    color: '#fff',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 12px 24px rgba(245, 87, 108, 0.4)',
+                    },
+                    transition: 'all 0.3s ease',
+                    borderRadius: 2,
+                  }}
+                >
+                  <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                    <CalendarToday sx={{ fontSize: 48, mb: 1 }} />
+                    <Typography variant="body1" fontWeight={600}>
+                      Book Appointment
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card
+                  onClick={() => navigate('/records')}
+                  sx={{
+                    cursor: 'pointer',
+                    background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                    color: '#fff',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 12px 24px rgba(79, 172, 254, 0.4)',
+                    },
+                    transition: 'all 0.3s ease',
+                    borderRadius: 2,
+                  }}
+                >
+                  <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                    <Assignment sx={{ fontSize: 48, mb: 1 }} />
+                    <Typography variant="body1" fontWeight={600}>
+                      Upload Records
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card
+                  sx={{
+                    cursor: 'pointer',
+                    background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                    color: '#fff',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 12px 24px rgba(67, 233, 123, 0.4)',
+                    },
+                    transition: 'all 0.3s ease',
+                    borderRadius: 2,
+                  }}
+                >
+                  <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                    <Emergency sx={{ fontSize: 48, mb: 1 }} />
+                    <Typography variant="body1" fontWeight={600}>
+                      Emergency SOS
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Box>
+        </Fade>
+
+        {/* Health Insights & Activity Feed Row */}
+        <Grid container spacing={3} sx={{ mb: 6 }}>
+          {/* Health Insights Card */}
+          <Grid item xs={12} md={6}>
+            <Grow in timeout={1400}>
+              <Card sx={{
+                height: '100%',
+                borderRadius: 3,
+                background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+              }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Favorite sx={{ fontSize: 32, color: '#ff6b6b', mr: 1 }} />
+                    <Typography variant="h6" fontWeight={700} color="text.primary">
+                      Health Insights
+                    </Typography>
+                  </Box>
+                  <List>
+                    <ListItem sx={{ bgcolor: 'rgba(255,255,255,0.5)', borderRadius: 2, mb: 1 }}>
+                      <ListItemIcon>
+                        <CheckCircle sx={{ color: '#51cf66' }} />
+                      </ListItemIcon>
+                      <ListItemText 
+                        primary="Blood Pressure"
+                        secondary="Normal - 120/80 mmHg"
+                        primaryTypographyProps={{ fontWeight: 600 }}
+                      />
+                    </ListItem>
+                    <ListItem sx={{ bgcolor: 'rgba(255,255,255,0.5)', borderRadius: 2, mb: 1 }}>
+                      <ListItemIcon>
+                        <CheckCircle sx={{ color: '#51cf66' }} />
+                      </ListItemIcon>
+                      <ListItemText 
+                        primary="Blood Sugar"
+                        secondary="Normal - 95 mg/dL"
+                        primaryTypographyProps={{ fontWeight: 600 }}
+                      />
+                    </ListItem>
+                    <ListItem sx={{ bgcolor: 'rgba(255,255,255,0.5)', borderRadius: 2 }}>
+                      <ListItemIcon>
+                        <Bloodtype sx={{ color: '#fa5252' }} />
+                      </ListItemIcon>
+                      <ListItemText 
+                        primary="Blood Group"
+                        secondary={user?.profile?.bloodGroup || 'Not Set'}
+                        primaryTypographyProps={{ fontWeight: 600 }}
+                      />
+                    </ListItem>
+                  </List>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    sx={{
+                      mt: 2,
+                      bgcolor: '#fff',
+                      color: '#ff6b6b',
+                      fontWeight: 600,
+                      '&:hover': {
+                        bgcolor: '#fff',
+                        transform: 'scale(1.02)',
+                      },
+                    }}
+                  >
+                    View Full Report
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grow>
+          </Grid>
+
+          {/* Recent Activity Card */}
+          <Grid item xs={12} md={6}>
+            <Grow in timeout={1600}>
+              <Card sx={{
+                height: '100%',
+                borderRadius: 3,
+                background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+              }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <AccessTime sx={{ fontSize: 32, color: '#339af0', mr: 1 }} />
+                    <Typography variant="h6" fontWeight={700} color="text.primary">
+                      Recent Activity
+                    </Typography>
+                  </Box>
+                  <List>
+                    <ListItem sx={{ bgcolor: 'rgba(255,255,255,0.5)', borderRadius: 2, mb: 1 }}>
+                      <ListItemIcon>
+                        <CalendarToday sx={{ color: '#667eea' }} />
+                      </ListItemIcon>
+                      <ListItemText 
+                        primary="Appointment Booked"
+                        secondary={upcomingAppointments[0] ? 
+                          new Date(upcomingAppointments[0].appointmentDate).toLocaleDateString() : 
+                          'No recent activity'
+                        }
+                        primaryTypographyProps={{ fontWeight: 600 }}
+                      />
+                    </ListItem>
+                    <ListItem sx={{ bgcolor: 'rgba(255,255,255,0.5)', borderRadius: 2, mb: 1 }}>
+                      <ListItemIcon>
+                        <Assignment sx={{ color: '#f5576c' }} />
+                      </ListItemIcon>
+                      <ListItemText 
+                        primary="Records Uploaded"
+                        secondary={`${records.length} documents available`}
+                        primaryTypographyProps={{ fontWeight: 600 }}
+                      />
+                    </ListItem>
+                    <ListItem sx={{ bgcolor: 'rgba(255,255,255,0.5)', borderRadius: 2 }}>
+                      <ListItemIcon>
+                        <LocalPharmacy sx={{ color: '#51cf66' }} />
+                      </ListItemIcon>
+                      <ListItemText 
+                        primary="Prescriptions"
+                        secondary="All medications up to date"
+                        primaryTypographyProps={{ fontWeight: 600 }}
+                      />
+                    </ListItem>
+                  </List>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    sx={{
+                      mt: 2,
+                      bgcolor: '#fff',
+                      color: '#339af0',
+                      fontWeight: 600,
+                      '&:hover': {
+                        bgcolor: '#fff',
+                        transform: 'scale(1.02)',
+                      },
+                    }}
+                  >
+                    View All Activity
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grow>
+          </Grid>
         </Grid>
 
         {/* Upcoming Appointments Section with Slide Animation */}
