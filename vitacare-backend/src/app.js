@@ -16,6 +16,12 @@ const emergencyRoutes = require('./routes/emergencyRoutes');
 const gamificationRoutes = require('./routes/gamificationRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
 
+// SHO Dashboard Routes
+const shoRoutes = require('./routes/shoRoutes');
+const rhoRoutes = require('./routes/rhoRoutes');
+const patientRoutes = require('./routes/patientRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
+
 const app = express();
 
 // Body parser
@@ -64,6 +70,12 @@ app.use('/api/v1/emergency', emergencyRoutes);
 app.use('/api/v1/gamification', gamificationRoutes);
 app.use('/api/v1/doctors', doctorRoutes);
 
+// SHO Dashboard Routes
+app.use('/api/v1/sho', shoRoutes);
+app.use('/api/v1/rho', rhoRoutes);
+app.use('/api/v1/patient', patientRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
+
 // Welcome route
 app.get('/', (req, res) => {
   res.json({
@@ -79,6 +91,10 @@ app.get('/', (req, res) => {
       emergency: '/api/v1/emergency',
       gamification: '/api/v1/gamification',
       doctors: '/api/v1/doctors',
+      sho: '/api/v1/sho',
+      rho: '/api/v1/rho',
+      patient: '/api/v1/patient',
+      analytics: '/api/v1/analytics',
       health: '/health'
     }
   });

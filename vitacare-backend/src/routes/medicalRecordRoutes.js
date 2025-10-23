@@ -15,11 +15,11 @@ router.use(protect); // Protect all routes
 
 router.route('/')
   .get(getMedicalRecords)
-  .post(authorize('doctor', 'hospital_admin'), createMedicalRecord);
+  .post(createMedicalRecord); // Allow all authenticated users to create records
 
 router.route('/:id')
   .get(getMedicalRecord)
-  .put(authorize('doctor', 'hospital_admin'), updateMedicalRecord);
+  .put(updateMedicalRecord); // Allow all authenticated users to update their records
 
 router.route('/consent')
   .post(grantAccess);

@@ -18,6 +18,13 @@ import Gamification from './pages/Gamification';
 import DoctorDashboard from './pages/DoctorDashboard';
 import Telemedicine from './pages/Telemedicine';
 
+// SHO Dashboard Pages
+import SHODashboard from './pages/sho/SHODashboard';
+import RHODashboard from './pages/sho/RHODashboard';
+
+// Patient Pages
+import PatientDiscovery from './pages/patient/PatientDiscovery';
+
 // Components
 import Header from './components/common/Header';
 import Loader from './components/common/Loader';
@@ -32,6 +39,25 @@ const PrivateRoute = ({ children }) => {
   }
   
   return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+// Role-based Route Component
+const RoleBasedRoute = ({ children, allowedRoles }) => {
+  const { isAuthenticated, loading, user } = useSelector((state) => state.auth);
+  
+  if (loading) {
+    return <Loader />;
+  }
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (allowedRoles && !allowedRoles.includes(user?.role)) {
+    return <Navigate to="/dashboard" />;
+  }
+  
+  return children;
 };
 
 function App() {
@@ -146,6 +172,32 @@ function App() {
                 <Telemedicine />
               </PrivateRoute>
             } 
+          />
+          
+          {/* SHO Dashboard Route */}
+          <Route 
+            path="/sho/dashboard" 
+            element={
+              <RoleBasedRoute allowedRoles={['sho']}>
+                <SHODashboard />
+              </RoleBasedRoute>
+            } 
+          />
+          
+          {/* RHO Dashboard Route */}
+          <Route 
+            path="/rho/dashboard" 
+            element={
+              <RoleBasedRoute allowedRoles={['rho']}>
+                <RHODashboard />
+              </RoleBasedRoute>
+            } 
+          />
+          
+          {/* Patient Discovery Route - Public Access */}
+          <Route 
+            path="/patient/discover" 
+            element={<PatientDiscovery />} 
           />
 
           {/* Default Route */}
