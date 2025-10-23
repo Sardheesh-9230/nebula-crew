@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import {
   Container,
   Box,
@@ -37,14 +36,10 @@ import {
   ArrowForward,
   CheckCircle,
   MedicalServices,
-  Phone,
-  Email,
-  LocationOn,
 } from '@mui/icons-material';
 
 const BookAppointment = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState({
     type: 'video',

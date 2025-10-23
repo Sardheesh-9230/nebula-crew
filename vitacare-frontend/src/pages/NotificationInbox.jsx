@@ -17,7 +17,6 @@ import {
   CircularProgress,
   IconButton,
   Divider,
-  Alert,
 } from '@mui/material';
 import {
   Notifications,
@@ -42,10 +41,6 @@ const NotificationInbox = () => {
   const [filter, setFilter] = useState('all'); // 'all', 'unread', 'critical'
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [filter, page]);
 
   const fetchNotifications = async () => {
     try {
@@ -73,6 +68,11 @@ const NotificationInbox = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter, page]);
 
   const handleFilterChange = (event, newFilter) => {
     setFilter(newFilter);

@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import {
   Container,
   Grid,
-  Paper,
   Typography,
   Button,
   Card,
@@ -13,8 +11,6 @@ import {
   CardActions,
   Box,
   Chip,
-  Avatar,
-  LinearProgress,
   Fade,
   Zoom,
   Slide,
@@ -23,14 +19,10 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Divider,
-  IconButton,
-  Tooltip,
 } from '@mui/material';
 import {
   MedicalServices,
   Event,
-  Person,
   LocalHospital,
   TrendingUp,
   Favorite,
@@ -39,16 +31,11 @@ import {
   ArrowForward,
   Add,
   CreditCard,
-  Phone,
-  Emergency,
-  Notifications,
-  Download,
-  Share,
+  LocalHospital as EmergencyIcon,
   CheckCircle,
   AccessTime,
   LocalPharmacy,
   Bloodtype,
-  FitnessCenter,
 } from '@mui/icons-material';
 import { getMedicalRecords } from '../redux/slices/recordsSlice';
 import { getAppointments } from '../redux/slices/appointmentsSlice';
@@ -347,22 +334,20 @@ const Dashboard = () => {
                       boxShadow: '0 12px 24px rgba(67, 233, 123, 0.4)',
                     },
                     transition: 'all 0.3s ease',
-                    borderRadius: 2,
-                  }}
-                >
-                  <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                    <Emergency sx={{ fontSize: 48, mb: 1 }} />
-                    <Typography variant="body1" fontWeight={600}>
-                      Emergency SOS
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
+                  borderRadius: 2,
+                }}
+              >
+                <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                  <EmergencyIcon sx={{ fontSize: 48, mb: 1 }} />
+                  <Typography variant="body1" fontWeight={600}>
+                    Emergency SOS
+                  </Typography>
+                </CardContent>
+              </Card>
             </Grid>
-          </Box>
-        </Fade>
-
-        {/* Health Insights & Activity Feed Row */}
+          </Grid>
+        </Box>
+      </Fade>        {/* Health Insights & Activity Feed Row */}
         <Grid container spacing={3} sx={{ mb: 6 }}>
           {/* Health Insights Card */}
           <Grid item xs={12} md={6}>

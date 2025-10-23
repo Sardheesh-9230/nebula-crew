@@ -21,7 +21,6 @@ import {
   Phone,
   LocalHospital,
   Person,
-  Warning,
   Check,
 } from '@mui/icons-material';
 import { toast } from 'react-toastify';
@@ -32,7 +31,6 @@ const EmergencySOS = ({ open, onClose }) => {
   const [sosActivated, setSosActivated] = useState(false);
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
-  const [sosResponse, setSosResponse] = useState(null);
 
   const activateSOS = async () => {
     setLoading(true);

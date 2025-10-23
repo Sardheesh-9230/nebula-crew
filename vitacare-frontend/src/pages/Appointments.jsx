@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -22,7 +22,6 @@ import {
   Fade,
   Zoom,
   Slide,
-  IconButton,
 } from '@mui/material';
 import {
   Event,
@@ -33,15 +32,13 @@ import {
   AccessTime,
   VideoCall,
   LocalHospital,
-  Person,
-  Close,
   WarningAmber,
 } from '@mui/icons-material';
 import { getAppointments, cancelAppointment } from '../redux/slices/appointmentsSlice';
 
 const Appointments = () => {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
+  const navigate = useNavigate();
   const { appointments, loading } = useSelector((state) => state.appointments);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);

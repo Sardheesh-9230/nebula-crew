@@ -36,14 +36,9 @@ const DoctorDashboard = () => {
   const navigate = useNavigate();
   const [doctorProfile, setDoctorProfile] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchBy, setSearchBy] = useState('name');
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
-
-  useEffect(() => {
-    fetchDoctorProfile();
-  }, []);
 
   const fetchDoctorProfile = async () => {
     try {
@@ -59,6 +54,11 @@ const DoctorDashboard = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchDoctorProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {

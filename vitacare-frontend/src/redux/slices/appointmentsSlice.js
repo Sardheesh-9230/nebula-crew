@@ -36,7 +36,7 @@ export const cancelAppointment = createAsyncThunk(
   'appointments/cancel',
   async ({ id, reason }, { rejectWithValue }) => {
     try {
-      const response = await api.delete(`/appointments/${id}`, { data: { reason } });
+      await api.delete(`/appointments/${id}`, { data: { reason } });
       toast.success('Appointment cancelled successfully!');
       return id;
     } catch (error) {

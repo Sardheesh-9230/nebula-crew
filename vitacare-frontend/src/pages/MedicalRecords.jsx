@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
 import {
   Container,
   Paper,
@@ -29,9 +28,7 @@ import {
   Visibility,
   Description,
   Search,
-  FilterList,
   Close,
-  Download,
   CalendarToday,
   LocalHospital,
   Science,
@@ -43,7 +40,6 @@ import { getMedicalRecords, getMedicalRecord } from '../redux/slices/recordsSlic
 
 const MedicalRecords = () => {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
   const { records, currentRecord, loading } = useSelector((state) => state.records);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');

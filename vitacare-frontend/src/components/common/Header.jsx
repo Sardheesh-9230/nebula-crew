@@ -26,7 +26,6 @@ const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
-  const { user } = useSelector((state) => state.auth);
   
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [langAnchorEl, setLangAnchorEl] = React.useState(null);

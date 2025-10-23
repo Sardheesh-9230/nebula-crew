@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
 import {
   Container,
   Box,
@@ -11,20 +10,17 @@ import {
   Typography,
   CircularProgress,
   Grid,
-<<<<<<< HEAD
+  MenuItem,
   Alert,
   AlertTitle,
   InputAdornment,
   IconButton,
   Fade,
   Slide,
-  Stepper,
-  Step,
-  StepLabel,
-=======
-  MenuItem,
-  Alert,
->>>>>>> 0935dc4792a40933c7c1121b38b9dc669f806c19
+  Zoom,
+  LinearProgress,
+  Divider,
+  Chip,
 } from '@mui/material';
 import {
   Person,
@@ -37,13 +33,13 @@ import {
   LocalHospital,
   ArrowForward,
   CheckCircle,
+  FiberManualRecord,
 } from '@mui/icons-material';
 import { register } from '../redux/slices/authSlice';
 
 const Register = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { t } = useTranslation();
   const { loading } = useSelector((state) => state.auth);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -69,42 +65,24 @@ const Register = () => {
     },
   });
 
-  const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
-  const [timeMessage, setTimeMessage] = useState('');
-
   const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
-  // Check if current time is within registration hours (5:30 PM - 7:30 PM)
-  useEffect(() => {
-    const checkRegistrationTime = () => {
-      const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
-      const currentTime = hours * 60 + minutes; // Convert to minutes
-      
-      const startTime = 17 * 60 + 30; // 5:30 PM in minutes (1050)
-      const endTime = 19 * 60 + 30;   // 7:30 PM in minutes (1170)
-      
-      const isOpen = currentTime >= startTime && currentTime <= endTime;
-      setIsRegistrationOpen(isOpen);
-      
-      if (!isOpen) {
-        if (currentTime < startTime) {
-          setTimeMessage('Registration is only available between 5:30 PM and 7:30 PM. Please come back during registration hours.');
-        } else {
-          setTimeMessage('Registration hours have ended for today. Registration is available between 5:30 PM and 7:30 PM.');
-        }
-      } else {
-        setTimeMessage('');
-      }
-    };
+  // Calculate form completion percentage
+  const calculateProgress = () => {
+    const fields = [
+      formData.firstName,
+      formData.lastName,
+      formData.mobileNumber,
+      formData.email,
+      formData.aadhaarNumber,
+      formData.password,
+      formData.bloodGroup,
+    ];
+    const filledFields = fields.filter(field => field && field.trim() !== '').length;
+    return Math.round((filledFields / fields.length) * 100);
+  };
 
-    checkRegistrationTime();
-    // Check every minute
-    const interval = setInterval(checkRegistrationTime, 60000);
-    
-    return () => clearInterval(interval);
-  }, []);
+  const progress = calculateProgress();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -139,11 +117,6 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!isRegistrationOpen) {
-      alert('Registration is only allowed between 5:30 PM and 7:30 PM');
-      return;
-    }
-    
     try {
       const result = await dispatch(register(formData));
       if (register.fulfilled.match(result)) {
@@ -158,7 +131,6 @@ const Register = () => {
   };
 
   return (
-<<<<<<< HEAD
     <Box
       sx={{
         minHeight: '100vh',
@@ -178,8 +150,82 @@ const Register = () => {
           background: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
           opacity: 0.4,
         },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          top: '-50%',
+          left: '-50%',
+          width: '200%',
+          height: '200%',
+          background: 'radial-gradient(circle at 20% 50%, rgba(240, 147, 251, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(79, 172, 254, 0.3) 0%, transparent 50%)',
+          animation: 'float 20s ease-in-out infinite',
+        },
+        '@keyframes float': {
+          '0%, 100%': {
+            transform: 'translate(0, 0) rotate(0deg)',
+          },
+          '33%': {
+            transform: 'translate(30px, -30px) rotate(120deg)',
+          },
+          '66%': {
+            transform: 'translate(-20px, 20px) rotate(240deg)',
+          },
+        },
       }}
     >
+      {/* Floating decorative shapes */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '10%',
+          left: '5%',
+          width: '100px',
+          height: '100px',
+          borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          animation: 'float1 15s ease-in-out infinite',
+          '@keyframes float1': {
+            '0%, 100%': { transform: 'translate(0, 0) rotate(0deg)' },
+            '50%': { transform: 'translate(50px, -50px) rotate(180deg)' },
+          },
+        }}
+      />
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: '15%',
+          right: '8%',
+          width: '150px',
+          height: '150px',
+          borderRadius: '70% 30% 30% 70% / 70% 70% 30% 30%',
+          background: 'rgba(255, 255, 255, 0.08)',
+          backdropFilter: 'blur(10px)',
+          animation: 'float2 18s ease-in-out infinite',
+          '@keyframes float2': {
+            '0%, 100%': { transform: 'translate(0, 0) rotate(0deg)' },
+            '50%': { transform: 'translate(-40px, 40px) rotate(-180deg)' },
+          },
+        }}
+      />
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          right: '3%',
+          width: '80px',
+          height: '80px',
+          borderRadius: '50%',
+          background: 'rgba(255, 255, 255, 0.12)',
+          backdropFilter: 'blur(10px)',
+          animation: 'float3 12s ease-in-out infinite',
+          '@keyframes float3': {
+            '0%, 100%': { transform: 'translateY(0)' },
+            '50%': { transform: 'translateY(-60px)' },
+          },
+        }}
+      />
+
       <Container component="main" maxWidth="md">
         <Fade in={true} timeout={800}>
           <Box
@@ -229,299 +275,6 @@ const Register = () => {
                   }}
                 >
                   VitaCare
-=======
-    <Container component="main" maxWidth="sm">
-      <Box
-        sx={{
-          marginTop: 4,
-          marginBottom: 4,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography component="h1" variant="h4" align="center" gutterBottom>
-            🏥 VitaCare
-          </Typography>
-          <Typography component="h2" variant="h6" align="center" gutterBottom>
-            {t('patientRegistration')}
-          </Typography>
-          
-          {!isRegistrationOpen && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {timeMessage}
-            </Alert>
-          )}
-          
-          {isRegistrationOpen && (
-            <Alert severity="info" sx={{ mb: 2 }}>
-              {t('registrationOpen')} (5:30 PM - 7:30 PM)
-            </Alert>
-          )}
-          
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-              {/* Personal Information */}
-              <Grid item xs={12}>
-                <Typography variant="subtitle1" fontWeight="bold" color="primary">
-                  {t('personalInformation')}
-                </Typography>
-              </Grid>
-              
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="aadhaarNumber"
-                  label={t('aadhaarNumber')}
-                  name="aadhaarNumber"
-                  placeholder="123456789012"
-                  inputProps={{ maxLength: 12, pattern: '[0-9]{12}' }}
-                  helperText="12-digit Aadhaar number"
-                  value={formData.aadhaarNumber}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="firstName"
-                  label={t('firstName')}
-                  name="firstName"
-                  autoComplete="given-name"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="lastName"
-                  label={t('lastName')}
-                  name="lastName"
-                  autoComplete="family-name"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="mobileNumber"
-                  label={t('mobileNumber')}
-                  name="mobileNumber"
-                  autoComplete="tel"
-                  placeholder="9876543210"
-                  helperText="10-digit Indian mobile number (starting with 6-9)"
-                  inputProps={{ maxLength: 10, pattern: '[0-9]{10}' }}
-                  value={formData.mobileNumber}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  select
-                  id="bloodGroup"
-                  label={t('bloodGroup')}
-                  name="bloodGroup"
-                  value={formData.bloodGroup}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                >
-                  {bloodGroups.map((group) => (
-                    <MenuItem key={group} value={group}>
-                      {group}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  id="email"
-                  label={t('email')}
-                  name="email"
-                  autoComplete="email"
-                  type="email"
-                  helperText={t('optional')}
-                  value={formData.email}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-              
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label={t('password')}
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                  helperText="Min 8 characters, 1 uppercase, 1 lowercase, 1 number"
-                  value={formData.password}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-              
-              {/* Address Information */}
-              <Grid item xs={12}>
-                <Typography variant="subtitle1" fontWeight="bold" color="primary" sx={{ mt: 2 }}>
-                  {t('addressInformation')}
-                </Typography>
-              </Grid>
-              
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="address.line1"
-                  label={t('addressLine1')}
-                  name="address.line1"
-                  value={formData.address.line1}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-              
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  id="address.line2"
-                  label={t('addressLine2')}
-                  name="address.line2"
-                  helperText={t('optional')}
-                  value={formData.address.line2}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="address.city"
-                  label={t('city')}
-                  name="address.city"
-                  value={formData.address.city}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="address.state"
-                  label={t('state')}
-                  name="address.state"
-                  value={formData.address.state}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-              
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="address.pincode"
-                  label={t('pincode')}
-                  name="address.pincode"
-                  inputProps={{ maxLength: 6, pattern: '[0-9]{6}' }}
-                  value={formData.address.pincode}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-              
-              {/* Emergency Contact Information */}
-              <Grid item xs={12}>
-                <Typography variant="subtitle1" fontWeight="bold" color="primary" sx={{ mt: 2 }}>
-                  {t('emergencyContact')}
-                </Typography>
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="emergencyContact.name"
-                  label={t('contactName')}
-                  name="emergencyContact.name"
-                  value={formData.emergencyContact.name}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="emergencyContact.relationship"
-                  label={t('relationship')}
-                  name="emergencyContact.relationship"
-                  value={formData.emergencyContact.relationship}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-              
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="emergencyContact.mobile"
-                  label={t('contactMobile')}
-                  name="emergencyContact.mobile"
-                  inputProps={{ maxLength: 10, pattern: '[0-9]{10}' }}
-                  value={formData.emergencyContact.mobile}
-                  onChange={handleChange}
-                  disabled={!isRegistrationOpen}
-                />
-              </Grid>
-            </Grid>
-            
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={loading || !isRegistrationOpen}
-            >
-              {loading ? <CircularProgress size={24} /> : t('registerPatient')}
-            </Button>
-            
-            {!isRegistrationOpen && (
-              <Typography variant="body2" color="error" align="center" sx={{ mb: 2 }}>
-                {t('registrationClosed')}
-              </Typography>
-            )}
-            
-            <Box sx={{ textAlign: 'center' }}>
-              <Link to="/login" style={{ textDecoration: 'none' }}>
-                <Typography variant="body2" color="primary">
-                  {t('alreadyHaveAccount')} {t('login')}
->>>>>>> 0935dc4792a40933c7c1121b38b9dc669f806c19
                 </Typography>
                 <Typography
                   variant="body1"
@@ -546,9 +299,14 @@ const Register = () => {
                   borderRadius: 4,
                   background: 'rgba(255, 255, 255, 0.98)',
                   backdropFilter: 'blur(20px)',
-                  boxShadow: '0 30px 90px rgba(0,0,0,0.3)',
+                  boxShadow: '0 30px 90px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.5)',
                   position: 'relative',
                   overflow: 'hidden',
+                  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: '0 35px 110px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.6)',
+                  },
                   '&::before': {
                     content: '""',
                     position: 'absolute',
@@ -560,6 +318,42 @@ const Register = () => {
                   },
                 }}
               >
+                {/* Progress Bar */}
+                <Box sx={{ mb: 4 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#666' }}>
+                      Registration Progress
+                    </Typography>
+                    <Chip 
+                      label={`${progress}%`}
+                      size="small"
+                      sx={{ 
+                        fontWeight: 700,
+                        background: progress === 100 
+                          ? 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+                          : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                        color: '#fff',
+                      }}
+                    />
+                  </Box>
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={progress}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: 'rgba(0,0,0,0.1)',
+                      '& .MuiLinearProgress-bar': {
+                        borderRadius: 4,
+                        background: progress === 100 
+                          ? 'linear-gradient(90deg, #4facfe 0%, #00f2fe 100%)'
+                          : 'linear-gradient(90deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)',
+                        transition: 'all 0.5s ease',
+                      },
+                    }}
+                  />
+                </Box>
+
                 <Typography
                   variant="h4"
                   align="center"
@@ -607,275 +401,468 @@ const Register = () => {
 
                 <Box component="form" onSubmit={handleSubmit}>
                   <Grid container spacing={3}>
+                    {/* Personal Information Section */}
+                    <Grid item xs={12}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                        <Divider sx={{ flex: 1, borderColor: '#f5576c', borderWidth: 1 }} />
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            fontWeight: 700, 
+                            background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                          }}
+                        >
+                          <Person /> Personal Information
+                        </Typography>
+                        <Divider sx={{ flex: 1, borderColor: '#f5576c', borderWidth: 1 }} />
+                      </Box>
+                    </Grid>
+
                     {/* Name Fields */}
                     <Grid item xs={12} sm={6}>
-                      <TextField
-                        required
-                        fullWidth
-                        id="firstName"
-                        label="First Name"
-                        name="firstName"
-                        autoComplete="given-name"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <Person sx={{ color: '#f5576c' }} />
-                            </InputAdornment>
-                          ),
-                        }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: 2,
-                            '&:hover fieldset': {
-                              borderColor: '#f5576c',
+                      <Zoom in={true} timeout={600}>
+                        <TextField
+                          required
+                          fullWidth
+                          id="firstName"
+                          label="First Name"
+                          name="firstName"
+                          autoComplete="given-name"
+                          value={formData.firstName}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Person sx={{ color: '#f5576c' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#f5576c',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#f5576c',
+                                borderWidth: 2,
+                              },
                             },
-                            '&.Mui-focused fieldset': {
-                              borderColor: '#f5576c',
-                              borderWidth: 2,
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#f5576c',
+                              fontWeight: 600,
                             },
-                          },
-                          '& .MuiInputLabel-root.Mui-focused': {
-                            color: '#f5576c',
-                          },
-                        }}
-                      />
+                          }}
+                        />
+                      </Zoom>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <TextField
-                        required
-                        fullWidth
-                        id="lastName"
-                        label="Last Name"
-                        name="lastName"
-                        autoComplete="family-name"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <Person sx={{ color: '#f5576c' }} />
-                            </InputAdornment>
-                          ),
-                        }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: 2,
-                            '&:hover fieldset': {
-                              borderColor: '#f5576c',
+                      <Zoom in={true} timeout={700}>
+                        <TextField
+                          required
+                          fullWidth
+                          id="lastName"
+                          label="Last Name"
+                          name="lastName"
+                          autoComplete="family-name"
+                          value={formData.lastName}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Person sx={{ color: '#f5576c' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#f5576c',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#f5576c',
+                                borderWidth: 2,
+                              },
                             },
-                            '&.Mui-focused fieldset': {
-                              borderColor: '#f5576c',
-                              borderWidth: 2,
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#f5576c',
+                              fontWeight: 600,
                             },
-                          },
-                          '& .MuiInputLabel-root.Mui-focused': {
-                            color: '#f5576c',
-                          },
-                        }}
-                      />
+                          }}
+                        />
+                      </Zoom>
                     </Grid>
 
                     {/* Mobile Number */}
-                    <Grid item xs={12}>
-                      <TextField
-                        required
-                        fullWidth
-                        id="mobileNumber"
-                        label="Mobile Number"
-                        name="mobileNumber"
-                        autoComplete="tel"
-                        placeholder="9876543210"
-                        helperText="10-digit Indian mobile number (starting with 6-9)"
-                        value={formData.mobileNumber}
-                        onChange={handleChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <Phone sx={{ color: '#4facfe' }} />
-                            </InputAdornment>
-                          ),
-                        }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: 2,
-                            '&:hover fieldset': {
-                              borderColor: '#4facfe',
+                    <Grid item xs={12} sm={6}>
+                      <Zoom in={true} timeout={800}>
+                        <TextField
+                          required
+                          fullWidth
+                          id="mobileNumber"
+                          label="Mobile Number"
+                          name="mobileNumber"
+                          autoComplete="tel"
+                          placeholder="9876543210"
+                          helperText="10-digit Indian mobile number (starting with 6-9)"
+                          inputProps={{ maxLength: 10, pattern: '[6-9][0-9]{9}' }}
+                          value={formData.mobileNumber}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Phone sx={{ color: '#4facfe' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(79, 172, 254, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#4facfe',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(79, 172, 254, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#4facfe',
+                                borderWidth: 2,
+                              },
                             },
-                            '&.Mui-focused fieldset': {
-                              borderColor: '#4facfe',
-                              borderWidth: 2,
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#4facfe',
+                              fontWeight: 600,
                             },
-                          },
-                          '& .MuiInputLabel-root.Mui-focused': {
-                            color: '#4facfe',
-                          },
-                        }}
-                      />
+                          }}
+                        />
+                      </Zoom>
+                    </Grid>
+
+                    {/* Blood Group */}
+                    <Grid item xs={12} sm={6}>
+                      <Zoom in={true} timeout={900}>
+                        <TextField
+                          required
+                          fullWidth
+                          select
+                          id="bloodGroup"
+                          label="Blood Group"
+                          name="bloodGroup"
+                          value={formData.bloodGroup}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <LocalHospital sx={{ color: '#f5576c' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#f5576c',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#f5576c',
+                                borderWidth: 2,
+                              },
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#f5576c',
+                              fontWeight: 600,
+                            },
+                          }}
+                        >
+                          {bloodGroups.map((group) => (
+                            <MenuItem key={group} value={group}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <FiberManualRecord sx={{ fontSize: 12, color: '#f5576c' }} />
+                                {group}
+                              </Box>
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      </Zoom>
                     </Grid>
 
                     {/* Email */}
                     <Grid item xs={12}>
-                      <TextField
-                        required
-                        fullWidth
-                        id="email"
-                        label="Email Address"
-                        name="email"
-                        autoComplete="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <Email sx={{ color: '#f093fb' }} />
-                            </InputAdornment>
-                          ),
-                        }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: 2,
-                            '&:hover fieldset': {
-                              borderColor: '#f093fb',
+                      <Zoom in={true} timeout={1000}>
+                        <TextField
+                          required
+                          fullWidth
+                          id="email"
+                          label="Email Address"
+                          name="email"
+                          autoComplete="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Email sx={{ color: '#f093fb' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(240, 147, 251, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#f093fb',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(240, 147, 251, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#f093fb',
+                                borderWidth: 2,
+                              },
                             },
-                            '&.Mui-focused fieldset': {
-                              borderColor: '#f093fb',
-                              borderWidth: 2,
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#f093fb',
+                              fontWeight: 600,
                             },
-                          },
-                          '& .MuiInputLabel-root.Mui-focused': {
-                            color: '#f093fb',
-                          },
-                        }}
-                      />
+                          }}
+                        />
+                      </Zoom>
                     </Grid>
 
                     {/* Aadhaar Number */}
                     <Grid item xs={12}>
-                      <TextField
-                        required
-                        fullWidth
-                        id="aadhaarNumber"
-                        label="Aadhaar Number"
-                        name="aadhaarNumber"
-                        placeholder="123456789012"
-                        helperText="12-digit Aadhaar number (used for UHI generation)"
-                        inputProps={{ maxLength: 12 }}
-                        value={formData.aadhaarNumber}
-                        onChange={handleChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <CreditCard sx={{ color: '#4facfe' }} />
-                            </InputAdornment>
-                          ),
-                        }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: 2,
-                            '&:hover fieldset': {
-                              borderColor: '#4facfe',
+                      <Zoom in={true} timeout={1100}>
+                        <TextField
+                          required
+                          fullWidth
+                          id="aadhaarNumber"
+                          label="Aadhaar Number"
+                          name="aadhaarNumber"
+                          placeholder="123456789012"
+                          helperText="12-digit Aadhaar number (used for UHI generation)"
+                          inputProps={{ maxLength: 12 }}
+                          value={formData.aadhaarNumber}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <CreditCard sx={{ color: '#4facfe' }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(79, 172, 254, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#4facfe',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(79, 172, 254, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#4facfe',
+                                borderWidth: 2,
+                              },
                             },
-                            '&.Mui-focused fieldset': {
-                              borderColor: '#4facfe',
-                              borderWidth: 2,
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#4facfe',
+                              fontWeight: 600,
                             },
-                          },
-                          '& .MuiInputLabel-root.Mui-focused': {
-                            color: '#4facfe',
-                          },
-                        }}
-                      />
+                          }}
+                        />
+                      </Zoom>
                     </Grid>
 
                     {/* Password */}
                     <Grid item xs={12}>
-                      <TextField
-                        required
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type={showPassword ? 'text' : 'password'}
-                        id="password"
-                        autoComplete="new-password"
-                        helperText="Minimum 6 characters"
-                        value={formData.password}
-                        onChange={handleChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <Lock sx={{ color: '#f5576c' }} />
-                            </InputAdornment>
-                          ),
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                aria-label="toggle password visibility"
-                                onClick={() => setShowPassword(!showPassword)}
-                                edge="end"
-                              >
-                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: 2,
-                            '&:hover fieldset': {
-                              borderColor: '#f5576c',
+                      <Zoom in={true} timeout={1200}>
+                        <TextField
+                          required
+                          fullWidth
+                          name="password"
+                          label="Password"
+                          type={showPassword ? 'text' : 'password'}
+                          id="password"
+                          autoComplete="new-password"
+                          helperText="Minimum 6 characters"
+                          value={formData.password}
+                          onChange={handleChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Lock sx={{ color: '#f5576c' }} />
+                              </InputAdornment>
+                            ),
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  aria-label="toggle password visibility"
+                                  onClick={() => setShowPassword(!showPassword)}
+                                  edge="end"
+                                  sx={{
+                                    '&:hover': {
+                                      background: 'rgba(245, 87, 108, 0.1)',
+                                    },
+                                  }}
+                                >
+                                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.2)',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#f5576c',
+                              },
+                              '&.Mui-focused': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(245, 87, 108, 0.3)',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#f5576c',
+                                borderWidth: 2,
+                              },
                             },
-                            '&.Mui-focused fieldset': {
-                              borderColor: '#f5576c',
-                              borderWidth: 2,
+                            '& .MuiInputLabel-root.Mui-focused': {
+                              color: '#f5576c',
+                              fontWeight: 600,
                             },
-                          },
-                          '& .MuiInputLabel-root.Mui-focused': {
-                            color: '#f5576c',
-                          },
-                        }}
-                      />
+                          }}
+                        />
+                      </Zoom>
                     </Grid>
                   </Grid>
 
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    disabled={loading}
-                    endIcon={!loading && <ArrowForward />}
-                    sx={{
-                      mt: 4,
-                      mb: 2,
-                      py: 1.8,
-                      borderRadius: 2,
-                      fontSize: '1.1rem',
-                      fontWeight: 700,
-                      textTransform: 'none',
-                      background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                      boxShadow: '0 10px 30px rgba(245, 87, 108, 0.4)',
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #e082ea 0%, #e4465b 100%)',
-                        boxShadow: '0 15px 40px rgba(245, 87, 108, 0.5)',
-                        transform: 'translateY(-2px)',
-                      },
-                      '&:active': {
-                        transform: 'translateY(0)',
-                      },
-                      transition: 'all 0.3s ease',
-                    }}
-                  >
-                    {loading ? (
-                      <CircularProgress size={26} sx={{ color: '#fff' }} />
-                    ) : (
-                      'Create Account'
-                    )}
-                  </Button>
+                  <Zoom in={true} timeout={1300}>
+                    <Button
+                      type="submit"
+                      fullWidth
+                      variant="contained"
+                      disabled={loading || progress < 100}
+                      endIcon={!loading && <ArrowForward />}
+                      sx={{
+                        mt: 4,
+                        mb: 2,
+                        py: 1.8,
+                        borderRadius: 3,
+                        fontSize: '1.1rem',
+                        fontWeight: 700,
+                        textTransform: 'none',
+                        background: progress === 100 
+                          ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                          : 'linear-gradient(135deg, #ccc 0%, #999 100%)',
+                        boxShadow: progress === 100 
+                          ? '0 10px 30px rgba(245, 87, 108, 0.4)'
+                          : '0 5px 15px rgba(0,0,0,0.2)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: '-50%',
+                          left: '-50%',
+                          width: '200%',
+                          height: '200%',
+                          background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)',
+                          transform: 'translate(-50%, -50%)',
+                          opacity: 0,
+                          transition: 'opacity 0.5s ease',
+                        },
+                        '&:hover::before': {
+                          opacity: progress === 100 ? 1 : 0,
+                        },
+                        '&:hover': {
+                          background: progress === 100 
+                            ? 'linear-gradient(135deg, #e082ea 0%, #e4465b 100%)'
+                            : 'linear-gradient(135deg, #ccc 0%, #999 100%)',
+                          boxShadow: progress === 100 
+                            ? '0 15px 40px rgba(245, 87, 108, 0.5)'
+                            : '0 5px 15px rgba(0,0,0,0.2)',
+                          transform: progress === 100 ? 'translateY(-2px) scale(1.02)' : 'none',
+                        },
+                        '&:active': {
+                          transform: 'translateY(0) scale(1)',
+                        },
+                        '&:disabled': {
+                          background: 'linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%)',
+                          color: '#999',
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      {loading ? (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                          <CircularProgress size={26} sx={{ color: '#fff' }} />
+                          <Typography>Creating Account...</Typography>
+                        </Box>
+                      ) : progress === 100 ? (
+                        'Create Account ✨'
+                      ) : (
+                        `Complete Form (${progress}%)`
+                      )}
+                    </Button>
+                  </Zoom>
 
                   <Box sx={{ textAlign: 'center', mt: 3 }}>
-                    <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
+                    <Typography variant="body2" sx={{ color: '#666', mb: 1, fontWeight: 500 }}>
                       Already have an account?
                     </Typography>
                     <Link to="/login" style={{ textDecoration: 'none' }}>
@@ -888,12 +875,15 @@ const Register = () => {
                           textTransform: 'none',
                           px: 4,
                           py: 1,
-                          borderRadius: 2,
+                          borderRadius: 3,
                           borderWidth: 2,
+                          transition: 'all 0.3s ease',
                           '&:hover': {
                             borderWidth: 2,
                             borderColor: '#f5576c',
-                            background: 'rgba(245, 87, 108, 0.05)',
+                            background: 'rgba(245, 87, 108, 0.08)',
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 8px 20px rgba(245, 87, 108, 0.2)',
                           },
                         }}
                       >

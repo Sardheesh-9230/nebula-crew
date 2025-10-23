@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
 import {
   Container,
-  Paper,
   Typography,
   Grid,
   TextField,
@@ -42,7 +40,6 @@ import UHICard from '../components/common/UHICard';
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
   const { user } = useSelector((state) => state.auth);
   const { profile, loading } = useSelector((state) => state.user);
   const [isEditing, setIsEditing] = useState(false);
