@@ -122,7 +122,10 @@ const Register = () => {
     try {
       const result = await dispatch(register(formData));
       if (register.fulfilled.match(result)) {
-        navigate('/dashboard');
+        // Navigate to registration success page with user data
+        navigate('/registration-success', { 
+          state: { user: result.payload.user } 
+        });
       }
     } catch (error) {
       console.error('Registration error:', error);
