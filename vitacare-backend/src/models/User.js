@@ -103,11 +103,24 @@ userSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Generate health ID
+// Generate UHI (Universal Health Identity) in format: FIRSTNAME1234
+// FIRSTNAME (uppercase) + Last 4 digits of Aadhaar
+userSchema.statics.generateUHI = function(firstName, aadhaarNumber) {
+  const namePrefix = firstName.toUpperCase().replace(/[^A-Z]/g, '').substring(0, 6);
+  const aadhaarSuffix = aadhaarNumber.slice(-4);
+  return `${namePrefix}${aadhaarSuffix}`;
+};
+
+// Legacy method - still supported
 userSchema.statics.generateHealthId = function() {
   const timestamp = Date.now().toString(36);
   const random = Math.random().toString(36).substring(2, 8).toUpperCase();
   return `VH${timestamp}${random}`;
 };
+
+// Add UHI virtual field for backward compatibility
+userSchema.virtual('uhi').get(function() {
+  return this.healthId;
+});
 
 module.exports = mongoose.model('User', userSchema);

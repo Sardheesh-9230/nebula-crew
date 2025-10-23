@@ -176,8 +176,9 @@ const Register = () => {
                   id="aadhaarNumber"
                   label={t('aadhaarNumber')}
                   name="aadhaarNumber"
+                  placeholder="123456789012"
                   inputProps={{ maxLength: 12, pattern: '[0-9]{12}' }}
-                  helperText={t('aadhaarHelp')}
+                  helperText="12-digit Aadhaar number"
                   value={formData.aadhaarNumber}
                   onChange={handleChange}
                   disabled={!isRegistrationOpen}
@@ -219,6 +220,8 @@ const Register = () => {
                   label={t('mobileNumber')}
                   name="mobileNumber"
                   autoComplete="tel"
+                  placeholder="9876543210"
+                  helperText="10-digit Indian mobile number (starting with 6-9)"
                   inputProps={{ maxLength: 10, pattern: '[0-9]{10}' }}
                   value={formData.mobileNumber}
                   onChange={handleChange}

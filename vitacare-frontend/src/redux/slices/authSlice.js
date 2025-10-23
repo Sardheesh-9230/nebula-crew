@@ -19,11 +19,13 @@ export const register = createAsyncThunk(
       
       // Display validation errors if present
       if (error.response?.data?.errors) {
+        error.response.data.errors.forEach(err => {
+          toast.error(`${err.field}: ${err.message}`);
+        });
         const validationErrors = error.response.data.errors
           .map(err => `${err.field}: ${err.message}`)
           .join('\n');
         console.error('Validation errors:', validationErrors);
-        toast.error(`Validation failed:\n${validationErrors}`);
       } else {
         toast.error(message);
       }
