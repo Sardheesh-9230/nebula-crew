@@ -5,7 +5,9 @@ const {
   bookAppointment,
   updateAppointment,
   cancelAppointment,
-  getAvailableSlots
+  getAvailableSlots,
+  approveAppointment,
+  rejectAppointment
 } = require('../controllers/appointmentController');
 const { protect } = require('../middleware/auth');
 
@@ -21,6 +23,12 @@ router.route('/:id')
   .get(getAppointment)
   .put(updateAppointment)
   .delete(cancelAppointment);
+
+router.route('/:id/approve')
+  .put(approveAppointment);
+
+router.route('/:id/reject')
+  .put(rejectAppointment);
 
 router.route('/doctor/:doctorId/slots')
   .get(getAvailableSlots);

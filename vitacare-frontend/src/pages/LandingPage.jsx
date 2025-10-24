@@ -165,7 +165,7 @@ const LandingPage = () => {
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <Button 
               color="inherit" 
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/role-selection')}
               startIcon={<Login />}
               sx={{ 
                 mr: 1,
@@ -411,7 +411,7 @@ const LandingPage = () => {
                     <Button
                       variant="outlined"
                       size="large"
-                      onClick={() => navigate('/login')}
+                      onClick={() => navigate('/role-selection')}
                       startIcon={<Login />}
                       sx={{
                         borderColor: '#fff',
@@ -890,7 +890,7 @@ const LandingPage = () => {
                 <Button
                   variant="outlined"
                   size="large"
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate('/role-selection')}
                   startIcon={<Login />}
                   sx={{
                     borderColor: '#fff',
@@ -947,7 +947,7 @@ const LandingPage = () => {
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                 <Button 
                   color="inherit" 
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate('/role-selection')}
                   sx={{ justifyContent: 'flex-start', textTransform: 'none' }}
                 >
                   Login

@@ -7,13 +7,10 @@ export const getAppointments = createAsyncThunk(
   'appointments/getAll',
   async (filters, { rejectWithValue }) => {
     try {
-      console.log('Redux: Fetching appointments with filters:', filters);
       const response = await api.get('/appointments', { params: filters });
-      console.log('Redux: Appointments fetched successfully:', response.data);
-      console.log('Redux: Total appointments:', response.data.data?.length);
       return response.data.data;
     } catch (error) {
-      console.error('Redux: Failed to fetch appointments:', error.response?.data);
+      console.error('Failed to fetch appointments:', error.response?.data?.message || error.message);
       return rejectWithValue(error.response?.data?.message);
     }
   }
@@ -24,14 +21,12 @@ export const bookAppointment = createAsyncThunk(
   'appointments/book',
   async (appointmentData, { rejectWithValue }) => {
     try {
-      console.log('Redux: Booking appointment with data:', appointmentData);
       const response = await api.post('/appointments', appointmentData);
-      console.log('Redux: Appointment booked successfully:', response.data);
       toast.success('Appointment booked successfully!');
       return response.data.data;
     } catch (error) {
-      console.error('Redux: Booking failed:', error.response?.data);
       const message = error.response?.data?.message || 'Booking failed';
+      console.error('Appointment booking failed:', message);
       toast.error(message);
       return rejectWithValue(message);
     }
@@ -48,6 +43,38 @@ export const cancelAppointment = createAsyncThunk(
       return id;
     } catch (error) {
       const message = error.response?.data?.message || 'Cancellation failed';
+      toast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
+
+// Approve appointment (Doctor only)
+export const approveAppointment = createAsyncThunk(
+  'appointments/approve',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`/appointments/${id}/approve`);
+      toast.success('Appointment approved successfully!');
+      return response.data.data;
+    } catch (error) {
+      const message = error.response?.data?.message || 'Approval failed';
+      toast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
+
+// Reject appointment (Doctor only)
+export const rejectAppointment = createAsyncThunk(
+  'appointments/reject',
+  async ({ id, reason }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`/appointments/${id}/reject`, { reason });
+      toast.success('Appointment rejected');
+      return response.data.data;
+    } catch (error) {
+      const message = error.response?.data?.message || 'Rejection failed';
       toast.error(message);
       return rejectWithValue(message);
     }
@@ -94,6 +121,22 @@ const appointmentsSlice = createSlice({
         state.appointments = state.appointments.filter(
           (apt) => apt._id !== action.payload
         );
+      })
+      .addCase(approveAppointment.fulfilled, (state, action) => {
+        const index = state.appointments.findIndex(
+          (apt) => apt._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.appointments[index] = action.payload;
+        }
+      })
+      .addCase(rejectAppointment.fulfilled, (state, action) => {
+        const index = state.appointments.findIndex(
+          (apt) => apt._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.appointments[index] = action.payload;
+        }
       });
   },
 });

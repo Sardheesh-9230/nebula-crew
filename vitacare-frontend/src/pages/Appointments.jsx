@@ -22,6 +22,7 @@ import {
   Fade,
   Zoom,
   Slide,
+  TextField,
 } from '@mui/material';
 import {
   Event,
@@ -34,15 +35,20 @@ import {
   LocalHospital,
   WarningAmber,
 } from '@mui/icons-material';
-import { getAppointments, cancelAppointment } from '../redux/slices/appointmentsSlice';
+import { getAppointments, cancelAppointment, approveAppointment, rejectAppointment } from '../redux/slices/appointmentsSlice';
 
 const Appointments = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { appointments, loading } = useSelector((state) => state.appointments);
+  const { user } = useSelector((state) => state.auth);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [tabValue, setTabValue] = useState(0);
+  const [rejectReason, setRejectReason] = useState('');
+
+  const isDoctor = user?.role === 'doctor';
 
   useEffect(() => {
     dispatch(getAppointments());
@@ -68,12 +74,35 @@ const Appointments = () => {
     }
   };
 
+  const handleApprove = (appointment) => {
+    dispatch(approveAppointment(appointment._id));
+  };
+
+  const handleRejectClick = (appointment) => {
+    setSelectedAppointment(appointment);
+    setRejectDialogOpen(true);
+  };
+
+  const handleRejectConfirm = () => {
+    if (selectedAppointment) {
+      dispatch(rejectAppointment({
+        id: selectedAppointment._id,
+        reason: rejectReason || 'Not available at this time'
+      }));
+      setRejectDialogOpen(false);
+      setSelectedAppointment(null);
+      setRejectReason('');
+    }
+  };
+
   const getStatusColor = (status) => {
     const colors = {
+      pending: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
       scheduled: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
       confirmed: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
       completed: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
       cancelled: 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)',
+      rejected: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)',
       'no-show': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
     };
     return colors[status] || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
@@ -81,9 +110,13 @@ const Appointments = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
+      case 'pending':
+        return <WarningAmber />;
       case 'confirmed':
         return <CheckCircle />;
       case 'cancelled':
+        return <Cancel />;
+      case 'rejected':
         return <Cancel />;
       case 'completed':
         return <CheckCircle />;
@@ -365,8 +398,47 @@ const Appointments = () => {
                     )}
 
                     {/* Actions */}
-                    <Box sx={{ display: 'flex', gap: 1, mt: 3 }}>
-                      {appointment.status === 'scheduled' || appointment.status === 'confirmed' ? (
+                    <Box sx={{ display: 'flex', gap: 1, mt: 3, flexDirection: 'column' }}>
+                      {/* Doctor Actions - Approve/Reject for Pending Appointments */}
+                      {isDoctor && appointment.status === 'pending' && (
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button
+                            variant="contained"
+                            startIcon={<CheckCircle />}
+                            fullWidth
+                            onClick={() => handleApprove(appointment)}
+                            sx={{
+                              background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                              fontWeight: 600,
+                              '&:hover': {
+                                background: 'linear-gradient(135deg, #38f9d7 0%, #43e97b 100%)',
+                              },
+                            }}
+                          >
+                            Approve
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            startIcon={<Cancel />}
+                            fullWidth
+                            onClick={() => handleRejectClick(appointment)}
+                            sx={{
+                              borderColor: '#f5576c',
+                              color: '#f5576c',
+                              fontWeight: 600,
+                              '&:hover': {
+                                borderColor: '#f093fb',
+                                background: 'rgba(245, 87, 108, 0.1)',
+                              },
+                            }}
+                          >
+                            Reject
+                          </Button>
+                        </Box>
+                      )}
+
+                      {/* Patient/Doctor Actions for Confirmed Appointments */}
+                      {(appointment.status === 'scheduled' || appointment.status === 'confirmed') && (
                         <>
                           {appointment.type === 'video' && (
                             <Button
@@ -384,25 +456,30 @@ const Appointments = () => {
                               Join Call
                             </Button>
                           )}
-                          <Button
-                            variant="outlined"
-                            startIcon={<Cancel />}
-                            fullWidth
-                            onClick={() => handleCancelClick(appointment)}
-                            sx={{
-                              borderColor: '#f5576c',
-                              color: '#f5576c',
-                              fontWeight: 600,
-                              '&:hover': {
-                                borderColor: '#f093fb',
-                                background: 'rgba(245, 87, 108, 0.1)',
-                              },
-                            }}
-                          >
-                            Cancel
-                          </Button>
+                          {!isDoctor && (
+                            <Button
+                              variant="outlined"
+                              startIcon={<Cancel />}
+                              fullWidth
+                              onClick={() => handleCancelClick(appointment)}
+                              sx={{
+                                borderColor: '#f5576c',
+                                color: '#f5576c',
+                                fontWeight: 600,
+                                '&:hover': {
+                                  borderColor: '#f093fb',
+                                  background: 'rgba(245, 87, 108, 0.1)',
+                                },
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          )}
                         </>
-                      ) : (
+                      )}
+
+                      {/* View Details for Other Statuses */}
+                      {appointment.status !== 'pending' && appointment.status !== 'scheduled' && appointment.status !== 'confirmed' && (
                         <Button
                           variant="outlined"
                           fullWidth
@@ -414,6 +491,20 @@ const Appointments = () => {
                         >
                           View Details
                         </Button>
+                      )}
+
+                      {/* Pending Status Info for Patients */}
+                      {!isDoctor && appointment.status === 'pending' && (
+                        <Box sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          background: 'rgba(250, 112, 154, 0.1)',
+                          border: '1px dashed #fa709a',
+                        }}>
+                          <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 600 }}>
+                            ⏳ Waiting for doctor approval
+                          </Typography>
+                        </Box>
                       )}
                     </Box>
                   </CardContent>
@@ -496,6 +587,100 @@ const Appointments = () => {
               }}
             >
               Yes, Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Reject Confirmation Dialog */}
+        <Dialog 
+          open={rejectDialogOpen} 
+          onClose={() => setRejectDialogOpen(false)}
+          PaperProps={{
+            sx: {
+              borderRadius: 3,
+              minWidth: 400,
+            }
+          }}
+        >
+          <DialogTitle sx={{ 
+            background: 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)',
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+          }}>
+            <Cancel />
+            Reject Appointment Request
+          </DialogTitle>
+          <DialogContent sx={{ pt: 3 }}>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              Are you sure you want to reject this appointment request?
+            </Typography>
+            {selectedAppointment && (
+              <Box sx={{ 
+                p: 2, 
+                borderRadius: 2,
+                background: 'rgba(245, 87, 108, 0.05)',
+                border: '1px solid rgba(245, 87, 108, 0.2)',
+                mb: 2,
+              }}>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  <strong>Patient:</strong> {selectedAppointment.patientId?.profile?.firstName || 'Patient'} {selectedAppointment.patientId?.profile?.lastName || ''}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  <strong>Date:</strong> {new Date(selectedAppointment.appointmentDate).toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Time:</strong> {selectedAppointment.timeSlot?.start} - {selectedAppointment.timeSlot?.end}
+                </Typography>
+              </Box>
+            )}
+            <TextField
+              fullWidth
+              label="Reason for rejection (optional)"
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="e.g., Not available at this time"
+              multiline
+              rows={2}
+              sx={{ mt: 2 }}
+            />
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button 
+              onClick={() => {
+                setRejectDialogOpen(false);
+                setRejectReason('');
+              }}
+              variant="outlined"
+              sx={{
+                borderColor: '#667eea',
+                color: '#667eea',
+                '&:hover': {
+                  borderColor: '#764ba2',
+                  background: 'rgba(102, 126, 234, 0.1)',
+                },
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleRejectConfirm} 
+              variant="contained"
+              startIcon={<Cancel />}
+              sx={{
+                background: 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                },
+              }}
+            >
+              Reject Request
             </Button>
           </DialogActions>
         </Dialog>

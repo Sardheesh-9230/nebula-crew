@@ -37,7 +37,7 @@ import {
   Warning as WarningIcon,
   People as PeopleIcon,
   LocalPharmacy as PharmacyIcon,
-  Emergency as EmergencyIcon,
+  LocalHospital as EmergencyIcon,
   TrendingUp as TrendingUpIcon,
   Add as AddIcon,
   Edit as EditIcon,

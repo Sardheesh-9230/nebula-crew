@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Doctor = require('../models/Doctor');
 const StateHealthOfficer = require('../models/StateHealthOfficer');
 const RegionalHealthOfficer = require('../models/RegionalHealthOfficer');
+const Admin = require('../models/Admin');
 
 // Protect routes - require authentication
 exports.protect = async (req, res, next) => {
@@ -29,7 +30,9 @@ exports.protect = async (req, res, next) => {
     let user;
     const role = decoded.role;
 
-    if (role === 'doctor') {
+    if (role === 'admin') {
+      user = await Admin.findById(decoded.id).select('-password');
+    } else if (role === 'doctor') {
       user = await Doctor.findById(decoded.id).select('-password');
     } else if (role === 'state-officer') {
       user = await StateHealthOfficer.findById(decoded.id).select('-password');

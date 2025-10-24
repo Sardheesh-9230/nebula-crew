@@ -1,5 +1,7 @@
 const Appointment = require('../models/Appointment');
 const Doctor = require('../models/Doctor');
+const Notification = require('../models/Notification');
+const User = require('../models/User');
 
 // @desc    Get user appointments
 // @route   GET /api/v1/appointments
@@ -138,11 +140,11 @@ exports.bookAppointment = async (req, res, next) => {
         doctorId: appointmentData.doctorId,
         appointmentDate: appointmentData.appointmentDate,
         'timeSlot.start': appointmentData.timeSlot.start,
-        status: { $in: ['scheduled', 'confirmed'] }
+        status: { $in: ['pending', 'scheduled', 'confirmed'] }
       });
 
       if (existingAppointment) {
-        console.log('Time slot already booked');
+        console.log('Time slot already booked or pending');
         return res.status(400).json({
           success: false,
           message: 'This time slot is not available'
@@ -153,9 +155,44 @@ exports.bookAppointment = async (req, res, next) => {
     const appointment = await Appointment.create(appointmentData);
     console.log('Appointment created successfully:', appointment);
 
+    // Send notification to doctor if doctorId is provided
+    if (appointmentData.doctorId) {
+      try {
+        const doctor = await Doctor.findById(appointmentData.doctorId).populate('userId');
+        if (doctor && doctor.userId) {
+          const patient = await User.findById(req.user._id);
+          const patientName = patient.profile?.firstName 
+            ? `${patient.profile.firstName} ${patient.profile.lastName || ''}`
+            : patient.healthId || 'A patient';
+
+          await Notification.create({
+            user: doctor.userId._id,
+            type: 'appointment',
+            severity: 'high',
+            title: '🩺 New Appointment Request',
+            message: `${patientName} has requested an appointment on ${new Date(appointment.appointmentDate).toLocaleDateString()} at ${appointment.timeSlot.start}. Please review and approve or reject.`,
+            data: {
+              appointmentId: appointment._id,
+              patientId: req.user._id,
+              patientName: patientName,
+              appointmentDate: appointment.appointmentDate,
+              timeSlot: appointment.timeSlot,
+              reason: appointment.reason
+            },
+            actionUrl: `/appointments/${appointment._id}`,
+            sentVia: ['app']
+          });
+          console.log('Notification sent to doctor:', doctor.userId._id);
+        }
+      } catch (notifError) {
+        console.error('Error sending notification to doctor:', notifError);
+        // Don't fail the appointment booking if notification fails
+      }
+    }
+
     res.status(201).json({
       success: true,
-      message: 'Appointment booked successfully',
+      message: 'Appointment request sent successfully. Waiting for doctor approval.',
       data: appointment
     });
   } catch (error) {
@@ -247,7 +284,7 @@ exports.getAvailableSlots = async (req, res, next) => {
     const bookedAppointments = await Appointment.find({
       doctorId,
       appointmentDate: new Date(date),
-      status: { $in: ['scheduled', 'confirmed'] }
+      status: { $in: ['pending', 'scheduled', 'confirmed'] }
     }).select('timeSlot');
 
     const bookedSlots = bookedAppointments.map(apt => apt.timeSlot.start);
@@ -264,3 +301,154 @@ exports.getAvailableSlots = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Approve appointment (Doctor only)
+// @route   PUT /api/v1/appointments/:id/approve
+// @access  Private (Doctor)
+exports.approveAppointment = async (req, res, next) => {
+  try {
+    const appointment = await Appointment.findById(req.params.id);
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found'
+      });
+    }
+
+    // Check if the appointment is for this doctor
+    const doctor = await Doctor.findOne({ userId: req.user._id });
+    if (!doctor || appointment.doctorId.toString() !== doctor._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not authorized to approve this appointment'
+      });
+    }
+
+    // Check if appointment is in pending status
+    if (appointment.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot approve appointment with status: ${appointment.status}`
+      });
+    }
+
+    // Update appointment status to confirmed
+    appointment.status = 'confirmed';
+    await appointment.save();
+
+    // Send notification to patient
+    try {
+      const patient = await User.findById(appointment.patientId);
+      const doctorUser = await User.findById(req.user._id);
+      const doctorName = doctorUser.profile?.firstName 
+        ? `Dr. ${doctorUser.profile.firstName} ${doctorUser.profile.lastName || ''}`
+        : `Dr. ${doctor.registrationNumber}`;
+
+      await Notification.create({
+        user: appointment.patientId,
+        type: 'appointment',
+        severity: 'high',
+        title: '✅ Appointment Confirmed',
+        message: `Your appointment with ${doctorName} on ${new Date(appointment.appointmentDate).toLocaleDateString()} at ${appointment.timeSlot.start} has been confirmed.`,
+        data: {
+          appointmentId: appointment._id,
+          doctorId: doctor._id,
+          doctorName: doctorName,
+          appointmentDate: appointment.appointmentDate,
+          timeSlot: appointment.timeSlot,
+          status: 'confirmed'
+        },
+        actionUrl: `/appointments/${appointment._id}`,
+        sentVia: ['app']
+      });
+    } catch (notifError) {
+      console.error('Error sending notification to patient:', notifError);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointment approved successfully',
+      data: appointment
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Reject appointment (Doctor only)
+// @route   PUT /api/v1/appointments/:id/reject
+// @access  Private (Doctor)
+exports.rejectAppointment = async (req, res, next) => {
+  try {
+    const appointment = await Appointment.findById(req.params.id);
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found'
+      });
+    }
+
+    // Check if the appointment is for this doctor
+    const doctor = await Doctor.findOne({ userId: req.user._id });
+    if (!doctor || appointment.doctorId.toString() !== doctor._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not authorized to reject this appointment'
+      });
+    }
+
+    // Check if appointment is in pending status
+    if (appointment.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot reject appointment with status: ${appointment.status}`
+      });
+    }
+
+    // Update appointment status to rejected
+    appointment.status = 'rejected';
+    appointment.cancellationReason = req.body.reason || 'Rejected by doctor';
+    await appointment.save();
+
+    // Send notification to patient
+    try {
+      const patient = await User.findById(appointment.patientId);
+      const doctorUser = await User.findById(req.user._id);
+      const doctorName = doctorUser.profile?.firstName 
+        ? `Dr. ${doctorUser.profile.firstName} ${doctorUser.profile.lastName || ''}`
+        : `Dr. ${doctor.registrationNumber}`;
+
+      await Notification.create({
+        user: appointment.patientId,
+        type: 'appointment',
+        severity: 'medium',
+        title: '❌ Appointment Not Approved',
+        message: `Your appointment request with ${doctorName} on ${new Date(appointment.appointmentDate).toLocaleDateString()} at ${appointment.timeSlot.start} was not approved. ${appointment.cancellationReason}`,
+        data: {
+          appointmentId: appointment._id,
+          doctorId: doctor._id,
+          doctorName: doctorName,
+          appointmentDate: appointment.appointmentDate,
+          timeSlot: appointment.timeSlot,
+          status: 'rejected',
+          reason: appointment.cancellationReason
+        },
+        actionUrl: '/appointments',
+        sentVia: ['app']
+      });
+    } catch (notifError) {
+      console.error('Error sending notification to patient:', notifError);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointment rejected successfully',
+      data: appointment
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

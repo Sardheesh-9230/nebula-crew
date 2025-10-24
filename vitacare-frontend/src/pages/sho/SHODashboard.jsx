@@ -36,7 +36,7 @@ import {
   Add as AddIcon,
   Analytics as AnalyticsIcon,
   Campaign as CampaignIcon,
-  Emergency as EmergencyIcon
+  LocalHospital as EmergencyIcon
 } from '@mui/icons-material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { styled } from '@mui/material/styles';

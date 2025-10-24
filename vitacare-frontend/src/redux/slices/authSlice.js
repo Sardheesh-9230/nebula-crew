@@ -80,12 +80,21 @@ export const loadUser = createAsyncThunk(
         endpoint = '/auth/regional-officer/me';
       }
       
-      const response = await api.get(endpoint);
       const token = localStorage.getItem('token');
+      
+      // Only make API call if token exists
+      if (!token) {
+        return rejectWithValue('No authentication token found');
+      }
+      
+      const response = await api.get(endpoint);
       
       // Connect socket if user is loaded successfully
       if (response.data.data && token) {
-        socketService.connect(response.data.data.id || response.data.data._id, token);
+        const userId = response.data.data.id || response.data.data._id;
+        if (userId) {
+          socketService.connect(userId, token);
+        }
       }
       
       return response.data.data;

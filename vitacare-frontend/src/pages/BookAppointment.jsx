@@ -96,11 +96,52 @@ const BookAppointment = () => {
 
   const handleSubmit = async () => {
     try {
-      await dispatch(bookAppointment(formData)).unwrap();
+      // Convert timeSlot string to object with start and end times
+      const [startTime] = formData.timeSlot.split(' - ');
+      const endTime = formData.timeSlot.includes(' - ') 
+        ? formData.timeSlot.split(' - ')[1]
+        : calculateEndTime(startTime);
+
+      // Transform data to match backend expectations
+      const appointmentData = {
+        appointmentDate: formData.date,
+        timeSlot: {
+          start: startTime || formData.timeSlot,
+          end: endTime || calculateEndTime(formData.timeSlot)
+        },
+        type: formData.type,
+        specialization: formData.specialization,
+        reason: formData.reason,
+        symptoms: formData.symptoms ? formData.symptoms.split(',').map(s => s.trim()) : [],
+        preferredLanguage: formData.preferredLanguage
+      };
+
+      console.log('Submitting appointment data:', appointmentData);
+      await dispatch(bookAppointment(appointmentData)).unwrap();
       navigate('/appointments');
     } catch (error) {
       console.error('Failed to book appointment:', error);
     }
+  };
+
+  // Helper function to calculate end time (30 minutes after start)
+  const calculateEndTime = (startTime) => {
+    const [time, period] = startTime.split(' ');
+    const [hours, minutes] = time.split(':').map(Number);
+    
+    let endHours = hours;
+    let endMinutes = minutes + 30;
+    
+    if (endMinutes >= 60) {
+      endHours += 1;
+      endMinutes -= 60;
+    }
+    
+    if (endHours > 12) {
+      endHours -= 12;
+    }
+    
+    return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')} ${period}`;
   };
 
   const getStepContent = (step) => {

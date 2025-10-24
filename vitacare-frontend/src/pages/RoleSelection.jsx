@@ -17,6 +17,7 @@ import {
   LocalHospital,
   AccountBalance,
   Business,
+  AdminPanelSettings,
 } from '@mui/icons-material';
 
 const RoleSelection = () => {
@@ -54,6 +55,14 @@ const RoleSelection = () => {
       icon: <Business sx={{ fontSize: 60 }} />,
       gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
       route: '/login/regional-officer',
+    },
+    {
+      id: 'admin',
+      title: 'Administrator',
+      description: 'System administration, user management, and platform oversight',
+      icon: <AdminPanelSettings sx={{ fontSize: 60 }} />,
+      gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+      route: '/admin/login',
     },
   ];
 
@@ -113,9 +122,9 @@ const RoleSelection = () => {
         </Fade>
 
         {/* Role Cards */}
-        <Grid container spacing={4}>
+        <Grid container spacing={4} justifyContent="center">
           {roles.map((role, index) => (
-            <Grid item xs={12} sm={6} md={3} key={role.id}>
+            <Grid item xs={12} sm={6} md={4} lg={2.4} key={role.id}>
               <Zoom in timeout={600 + index * 100}>
                 <Card
                   sx={{

@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import userReducer from './slices/userSlice';
 import recordsReducer from './slices/recordsSlice';
 import appointmentsReducer from './slices/appointmentsSlice';
+import adminReducer from './slices/adminSlice';
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     user: userReducer,
     records: recordsReducer,
     appointments: appointmentsReducer,
+    admin: adminReducer,
   },
 });
 

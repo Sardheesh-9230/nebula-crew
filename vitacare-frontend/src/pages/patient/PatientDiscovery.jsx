@@ -49,7 +49,7 @@ import {
   DirectionsCar as DirectionsIcon,
   FilterList as FilterIcon,
   BookOnline as BookIcon,
-  Emergency as EmergencyIcon,
+  LocalHospital as EmergencyIcon,
   Accessible as AccessibleIcon
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';

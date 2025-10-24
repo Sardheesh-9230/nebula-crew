@@ -214,3 +214,61 @@ exports.revokeAccess = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Upload medical record file
+// @route   POST /api/v1/records/upload
+// @access  Private
+exports.uploadMedicalRecord = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload a file'
+      });
+    }
+
+    const { title, description, recordType, date } = req.body;
+
+    // Get user's healthId
+    const healthId = req.user.healthId || req.user._id;
+
+    // Create file URL
+    const fileUrl = `/uploads/medical-records/${req.file.filename}`;
+
+    // Create medical record with file information
+    const recordData = {
+      healthId: healthId,
+      recordType: recordType || 'lab_report',
+      metadata: {
+        title: title || req.file.originalname,
+        description: description || '',
+        date: date ? new Date(date) : new Date(),
+        fileUrl: fileUrl,
+        fileName: req.file.originalname,
+        fileSize: req.file.size,
+        mimeType: req.file.mimetype
+      },
+      isPrivate: true,
+      tags: [recordType || 'lab_report']
+    };
+
+    const record = await MedicalRecord.create(recordData);
+
+    res.status(201).json({
+      success: true,
+      message: 'Medical record uploaded successfully',
+      data: record
+    });
+  } catch (error) {
+    // If error occurs, delete the uploaded file
+    if (req.file) {
+      const fs = require('fs');
+      const path = require('path');
+      const filePath = path.join(__dirname, '../../uploads/medical-records', req.file.filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+    next(error);
+  }
+};

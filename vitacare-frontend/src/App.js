@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Box, ThemeProvider } from '@mui/material';
 import { loadUser } from './redux/slices/authSlice';
+import { loadAdmin } from './redux/slices/adminSlice';
 import governmentTheme from './theme/governmentTheme';
 
 // Pages
@@ -10,6 +11,7 @@ import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import RegistrationSuccess from './pages/RegistrationSuccess';
+import RoleSelection from './pages/RoleSelection';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import MedicalRecords from './pages/MedicalRecords';
@@ -20,7 +22,15 @@ import Gamification from './pages/Gamification';
 import EnhancedDoctorDashboard from './pages/EnhancedDoctorDashboard';
 import StateOfficerDashboard from './pages/StateOfficerDashboard';
 import RegionalOfficerDashboard from './pages/RegionalOfficerDashboard';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import Telemedicine from './pages/Telemedicine';
+
+// Auth Pages
+import PatientLogin from './pages/auth/PatientLogin';
+import DoctorLogin from './pages/auth/DoctorLogin';
+import StateOfficerLogin from './pages/auth/StateOfficerLogin';
+import RegionalOfficerLogin from './pages/auth/RegionalOfficerLogin';
 
 // SHO Dashboard Pages
 import SHODashboard from './pages/sho/SHODashboard';
@@ -42,7 +52,7 @@ const PrivateRoute = ({ children }) => {
     return <Loader />;
   }
   
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  return isAuthenticated ? children : <Navigate to="/role-selection" />;
 };
 
 // Role-based Route Component
@@ -54,7 +64,7 @@ const RoleBasedRoute = ({ children, allowedRoles }) => {
   }
   
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/role-selection" />;
   }
   
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
@@ -64,6 +74,17 @@ const RoleBasedRoute = ({ children, allowedRoles }) => {
   return children;
 };
 
+// Admin Private Route Component
+const AdminPrivateRoute = ({ children }) => {
+  const { isAuthenticated: adminAuthenticated, loading: adminLoading } = useSelector((state) => state.admin);
+  
+  if (adminLoading) {
+    return <Loader />;
+  }
+  
+  return adminAuthenticated ? children : <Navigate to="/admin/login" />;
+};
+
 function App() {
   const dispatch = useDispatch();
   const { isAuthenticated, loading } = useSelector((state) => state.auth);
@@ -71,11 +92,15 @@ function App() {
   useEffect(() => {
     // Try to load user from token on app start
     const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('userRole');
+    
     if (token) {
-      dispatch(loadUser());
-    } else {
-      // If no token, set loading to false immediately
-      // This is handled by the authSlice reducer, but we need to ensure it happens
+      // Load admin or regular user based on stored role
+      if (userRole === 'admin') {
+        dispatch(loadAdmin());
+      } else {
+        dispatch(loadUser());
+      }
     }
   }, [dispatch]);
 
@@ -99,8 +124,12 @@ function App() {
 
           {/* Public Routes */}
           <Route 
+            path="/role-selection" 
+            element={isAuthenticated ? <Navigate to="/dashboard" /> : <RoleSelection />} 
+          />
+          <Route 
             path="/login" 
-            element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} 
+            element={<Navigate to="/role-selection" />} 
           />
           <Route 
             path="/register" 
@@ -110,14 +139,22 @@ function App() {
             path="/registration-success" 
             element={<RegistrationSuccess />} 
           />
-          {/* Legacy routes for backward compatibility */}
+          
+          {/* Role-based Login Routes */}
+          <Route path="/login/patient" element={<PatientLogin />} />
+          <Route path="/login/doctor" element={<DoctorLogin />} />
+          <Route path="/login/state-officer" element={<StateOfficerLogin />} />
+          <Route path="/login/regional-officer" element={<RegionalOfficerLogin />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route 
-            path="/role-selection" 
-            element={<Navigate to="/login" />} 
-          />
-          <Route 
-            path="/login/:role" 
-            element={<Navigate to="/login" />} 
+            path="/admin/dashboard" 
+            element={
+              <AdminPrivateRoute>
+                <AdminDashboard />
+              </AdminPrivateRoute>
+            } 
           />
 
           {/* Private Routes */}
@@ -186,6 +223,14 @@ function App() {
             } 
           />
           <Route 
+            path="/doctor-dashboard" 
+            element={
+              <PrivateRoute>
+                <EnhancedDoctorDashboard />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
             path="/state-officer/dashboard" 
             element={
               <PrivateRoute>
@@ -219,10 +264,26 @@ function App() {
               </RoleBasedRoute>
             } 
           />
+          <Route 
+            path="/sho-dashboard" 
+            element={
+              <RoleBasedRoute allowedRoles={['sho']}>
+                <SHODashboard />
+              </RoleBasedRoute>
+            } 
+          />
           
           {/* RHO Dashboard Route */}
           <Route 
             path="/rho/dashboard" 
+            element={
+              <RoleBasedRoute allowedRoles={['rho']}>
+                <RHODashboard />
+              </RoleBasedRoute>
+            } 
+          />
+          <Route 
+            path="/rho-dashboard" 
             element={
               <RoleBasedRoute allowedRoles={['rho']}>
                 <RHODashboard />

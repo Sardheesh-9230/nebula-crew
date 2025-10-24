@@ -11,6 +11,8 @@ const authRoutes = require('./routes/authRoutes');
 const doctorAuthRoutes = require('./routes/doctorAuthRoutes');
 const stateOfficerAuthRoutes = require('./routes/stateOfficerAuthRoutes');
 const regionalOfficerAuthRoutes = require('./routes/regionalOfficerAuthRoutes');
+const adminAuthRoutes = require('./routes/adminAuthRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
 const medicalRecordRoutes = require('./routes/medicalRecordRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
@@ -30,6 +32,10 @@ const app = express();
 // Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from uploads directory
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Security headers
 app.use(helmet());
@@ -85,6 +91,8 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/auth/doctor', doctorAuthRoutes);
 app.use('/api/v1/auth/state-officer', stateOfficerAuthRoutes);
 app.use('/api/v1/auth/regional-officer', regionalOfficerAuthRoutes);
+app.use('/api/v1/auth/admin', adminAuthRoutes);
+app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/records', medicalRecordRoutes);
 app.use('/api/v1/appointments', appointmentRoutes);
@@ -110,6 +118,8 @@ app.get('/', (req, res) => {
       doctorAuth: '/api/v1/auth/doctor',
       stateOfficerAuth: '/api/v1/auth/state-officer',
       regionalOfficerAuth: '/api/v1/auth/regional-officer',
+      adminAuth: '/api/v1/auth/admin',
+      admin: '/api/v1/admin',
       users: '/api/v1/users',
       records: '/api/v1/records',
       appointments: '/api/v1/appointments',
